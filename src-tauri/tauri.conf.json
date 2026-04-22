@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "ds4-dashboard",
+  "productName": "DS4 Dashboard",
   "version": "0.1.0",
   "identifier": "com.symon.ds4-dashboard",
   "build": {
@@ -12,9 +12,12 @@
   "app": {
     "windows": [
       {
-        "title": "ds4-dashboard",
-        "width": 800,
-        "height": 600
+        "title": "DS4 Dashboard",
+        "label": "main",
+        "width": 380,
+        "height": 520,
+        "resizable": false,
+        "center": true
       }
     ],
     "security": {

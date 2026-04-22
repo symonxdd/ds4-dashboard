@@ -1,0 +1,13 @@
+[package]
+name = "ds4-hid"
+version = "0.1.0"
+edition = "2021"
+description = "Read DualShock 4 controller status (battery, connection type) via HID"
+license = "MIT"
+repository = "https://github.com/symon/ds4-hid"
+keywords = ["ds4", "dualshock4", "hid", "gamepad", "controller"]
+categories = ["hardware-support", "game-development"]
+
+[dependencies]
+hidapi = "2.6"
+serde = { version = "1", features = ["derive"] }

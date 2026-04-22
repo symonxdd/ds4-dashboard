@@ -1,7 +1,7 @@
 [package]
 name = "ds4-dashboard"
 version = "0.1.0"
-description = "A Tauri App"
+description = "DS4 battery monitor with system tray"
 authors = ["you"]
 edition = "2021"
 
@@ -18,8 +18,8 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 tauri-build = { version = "2", features = [] }
 
 [dependencies]
-tauri = { version = "2", features = [] }
+tauri = { version = "2", features = ["tray-icon"] }
 tauri-plugin-opener = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-
+ds4-hid = { path = "../crates/ds4-hid" }

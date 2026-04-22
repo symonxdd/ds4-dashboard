@@ -1,116 +1,190 @@
-.logo.vite:hover {
-  filter: drop-shadow(0 0 2em #747bff);
-}
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap");
 
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafb);
-}
 :root {
-  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
-  font-size: 16px;
-  line-height: 24px;
-  font-weight: 400;
-
-  color: #0f0f0f;
-  background-color: #f6f6f6;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  -webkit-text-size-adjust: 100%;
+  --bg: #0a0a0f;
+  --card-bg: rgba(255, 255, 255, 0.04);
+  --card-border: rgba(255, 255, 255, 0.08);
+  --text: #e4e4e7;
+  --text-muted: #71717a;
 }
 
-.container {
+* {
   margin: 0;
-  padding-top: 10vh;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Layout ───────────────────────────────────────── */
+
+.dashboard {
   display: flex;
   flex-direction: column;
+  align-items: center;
   justify-content: center;
-  text-align: center;
+  height: 100%;
+  padding: 2rem;
+  gap: 1.5rem;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: 0.75s;
-}
+/* ── Gauge Card ───────────────────────────────────── */
 
-.logo.tauri:hover {
-  filter: drop-shadow(0 0 2em #24c8db);
-}
-
-.row {
+.gauge-card {
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 24px;
+  padding: 2.5rem 2rem 2rem;
+  width: 100%;
+  max-width: 320px;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* ── SVG Gauge ────────────────────────────────────── */
+
+.gauge-wrapper {
+  position: relative;
+  width: 220px;
+  height: 160px;
+}
+
+.gauge-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.gauge-bg,
+.gauge-fill {
+  fill: none;
+  stroke-width: 12;
+  stroke-linecap: round;
+  /* Rotate so the arc opens at the bottom (gap at 6 o'clock) */
+  transform: rotate(150deg);
+  transform-origin: 90px 90px;
+}
+
+.gauge-bg {
+  stroke: rgba(255, 255, 255, 0.07);
+}
+
+.gauge-fill {
+  transition: stroke-dashoffset 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+    stroke 0.5s ease;
+}
+
+/* ── Center Text ──────────────────────────────────── */
+
+.gauge-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -30%);
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.gauge-pct {
+  font-size: 3.5rem;
+  font-weight: 800;
+  line-height: 1;
+  transition: color 0.5s ease;
+}
+
+.gauge-pct-sign {
+  font-size: 1.5rem;
+  font-weight: 600;
+  opacity: 0.7;
+  transition: color 0.5s ease;
+}
+
+.gauge-disconnected {
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--text-muted);
+}
+
+/* ── Badges ───────────────────────────────────────── */
+
+.badges {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
   justify-content: center;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
 }
 
-a:hover {
-  color: #535bf2;
+.badge-conn {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
 }
 
-h1 {
-  text-align: center;
+.badge-conn.bt {
+  background: rgba(59, 130, 246, 0.15);
+  color: #93bbfc;
 }
 
-input,
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  color: #0f0f0f;
-  background-color: #ffffff;
-  transition: border-color 0.25s;
-  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
+.badge-conn.usb {
+  background: rgba(34, 197, 94, 0.12);
+  color: #86efac;
 }
 
-button {
-  cursor: pointer;
+.badge-charging {
+  background: rgba(56, 189, 248, 0.12);
+  color: #7dd3fc;
+  animation: pulse-glow 2s ease-in-out infinite;
 }
 
-button:hover {
-  border-color: #396cd8;
-}
-button:active {
-  border-color: #396cd8;
-  background-color: #e8e8e8;
+.badge-disconnected {
+  background: rgba(239, 68, 68, 0.1);
+  color: #fca5a5;
 }
 
-input,
-button {
-  outline: none;
+/* ── Footer ───────────────────────────────────────── */
+
+.footer-text {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
-#greet-input {
-  margin-right: 5px;
-}
+/* ── Animations ───────────────────────────────────── */
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    color: #f6f6f6;
-    background-color: #2f2f2f;
+@keyframes pulse-glow {
+  0%,
+  100% {
+    opacity: 1;
   }
-
-  a:hover {
-    color: #24c8db;
-  }
-
-  input,
-  button {
-    color: #ffffff;
-    background-color: #0f0f0f98;
-  }
-  button:active {
-    background-color: #0f0f0f69;
+  50% {
+    opacity: 0.6;
   }
 }
