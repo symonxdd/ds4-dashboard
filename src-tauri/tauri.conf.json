@@ -14,8 +14,8 @@
       {
         "title": "DS4 Dashboard",
         "label": "main",
-        "width": 700,
-        "height": 540,
+        "width": 867,
+        "height": 569,
         "resizable": true,
         "center": true,
         "theme": "Dark",

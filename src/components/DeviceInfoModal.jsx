@@ -40,7 +40,6 @@ export default function DeviceInfoModal({ open, onClose, status }) {
 
         <div className={styles.infoBox}>
           This data is retrieved directly from the controller via HID.
-          Models marked as <b>v2</b> support the integrated light bar visible through the touchpad.
         </div>
       </div>
     </div>
