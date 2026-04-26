@@ -1,0 +1,52 @@
+.container {
+  margin-top: 1.5rem;
+  padding: 0.5rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.presets {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.colorDot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background-color: var(--color);
+  border: 1.5px solid transparent;
+  cursor: default;
+  transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+  position: relative;
+  padding: 0;
+}
+
+.colorDot:hover {
+  transform: scale(1.2);
+}
+
+.colorDot.active {
+  border-color: var(--text-primary);
+  box-shadow: 0 0 8px var(--color);
+  transform: scale(1.1);
+}
+
+.colorDot::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 1px solid transparent;
+  transition: border-color 0.15s;
+}
+
+.colorDot.active::after {
+  border-color: var(--border-strong);
+}

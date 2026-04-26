@@ -1,0 +1,99 @@
+:root {
+  /* --- Light theme --- */
+  /* Brand & Accent */
+  --color-primary: #008eec;
+  --color-primary-hover: #a81e11;
+  --color-accent-red: #F14144;
+
+  /* Background Surfaces */
+  --bg-app: #f3f3f3;
+  --bg-surface: #f9f9f9;
+  --bg-card: #F0F0F0;
+  --bg-card-hover: #F0F0F0;
+  --bg-card-active: #D7D7D7;
+  --bg-toast: #f0f0f0;
+  --bg-tab-bar: #f3f3f3;
+  --bg-avatar-active: #F0F0F0;
+  --bg-badge: #757575;
+
+  /* Text & Content */
+  --text-primary: #373737;
+  --text-secondary: #6b6b6b;
+  --text-inverse: #fff;
+  --text-header: #5b5b5b;
+
+  /* Borders & Dividers */
+  --border-subtle: #d1d1d1;
+  --border-strong: #b4b4b4;
+
+  /* Interactive Elements */
+  --btn-primary-bg: #333;
+  --btn-primary-hover: #111;
+  --btn-ghost-hover: #e0e0e0;
+
+  /* Misc */
+  --avatar-gradient: linear-gradient(135deg, #FBBB03, #E21F0A);
+  --bg-glass: rgba(255, 255, 255, 0.7);
+  --border-glass: rgba(0, 0, 0, 0.08);
+  --shadow-card-hover: 0 4px 8px rgba(0, 0, 0, 0.08);
+  --transition-speed: 0.25s;
+}
+
+/* --- Dark theme --- */
+[data-theme="dark"] {
+  /* Brand & Accent */
+  --color-primary: #ce9d15;
+  --color-primary-hover: #a81e11;
+
+  /* Background Surfaces */
+  --bg-app: #060606;
+  --bg-surface: #0A0A0A;
+  --bg-card: #0c0c0c;
+  --bg-card-hover: #1a1a1a;
+  --bg-card-active: #121212;
+  --bg-toast: #101010;
+  --bg-tab-bar: #202020;
+  --bg-avatar-active: color-mix(in srgb, var(--text-primary) 12%, var(--bg-card));
+  --bg-badge: #434343;
+
+  /* Text & Content */
+  --text-primary: #f3f3f3;
+  --text-secondary: #9aa0aa;
+  --text-inverse: #b9b9b9;
+  --text-header: #e9e9e9;
+
+  /* Borders & Dividers */
+  --border-subtle: #161616;
+  --border-strong: #2a2a2a;
+
+  /* Interactive Elements */
+  --btn-primary-bg: #212121;
+  --btn-primary-hover: #121212;
+  --btn-ghost-hover: #2b2b2b;
+
+  /* Misc */
+  --bg-glass: rgba(20, 20, 20, 0.7);
+  --border-glass: rgba(255, 255, 255, 0.05);
+  --shadow-card-hover: 0 4px 12px rgba(255, 255, 255, 0.05);
+}
+
+/* --- True Black mode --- */
+[data-theme="dark"][data-true-black="true"] {
+  /* Background Surfaces */
+  --bg-app: #000;
+  --bg-surface: #000;
+  --bg-card: #000000;
+  --bg-card-hover: #000000;
+  --bg-card-active: #000000;
+  --bg-toast: #000;
+  --bg-tab-bar: #000;
+  --bg-avatar-active: color-mix(in srgb, var(--text-primary) 12%, var(--bg-card));
+  --bg-badge: transparent;
+
+  /* Borders & Dividers */
+  --border-subtle: #111;
+  --border-strong: #000000;
+
+  /* Interactive Elements */
+  --btn-ghost-hover: #111111;
+}

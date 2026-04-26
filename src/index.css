@@ -1,0 +1,17 @@
+@import "./theme.css";
+@import "./layout.css";
+@import "./native.css";
+@import "./focus.css";
+
+/* Custom utility classes or minor overrides can go here */
+:root {
+  --text-muted: var(--text-secondary);
+}
+
+.dark {
+  color-scheme: dark;
+}
+
+.light {
+  color-scheme: light;
+}

@@ -22,4 +22,5 @@ tauri = { version = "2", features = ["tray-icon"] }
 tauri-plugin-opener = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+hidapi = "2.6"
 ds4-hid = { path = "../crates/ds4-hid" }

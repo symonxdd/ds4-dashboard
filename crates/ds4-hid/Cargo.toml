@@ -11,3 +11,4 @@ categories = ["hardware-support", "game-development"]
 [dependencies]
 hidapi = "2.6"
 serde = { version = "1", features = ["derive"] }
+crc = "3.0"

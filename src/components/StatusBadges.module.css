@@ -1,0 +1,57 @@
+.badges {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border-subtle);
+}
+
+.conn {
+  color: var(--text-primary);
+}
+
+.connLabel {
+  opacity: 0.8;
+}
+
+.charging {
+  background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+  color: var(--color-primary);
+  border-color: color-mix(in srgb, var(--color-primary) 20%, transparent);
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+
+.zapIcon {
+  color: var(--color-primary);
+}
+
+.disconnected {
+  background: rgba(241, 65, 68, 0.05);
+  color: var(--color-accent-red);
+  border-color: rgba(241, 65, 68, 0.15);
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
