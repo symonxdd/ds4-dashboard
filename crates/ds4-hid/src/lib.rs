@@ -140,15 +140,26 @@ pub fn read_status(device: &hidapi::HidDevice, info: &hidapi::DeviceInfo) -> Ds4
     Ds4Status::disconnected()
 }
 
-pub fn set_lightbar(device: &hidapi::HidDevice, r: u8, g: u8, b: u8, is_bt: bool) -> Result<(), String> {
+pub fn set_output_state(
+    device: &hidapi::HidDevice,
+    r: u8,
+    g: u8,
+    b: u8,
+    small_rumble: u8,
+    large_rumble: u8,
+    is_bt: bool,
+) -> Result<(), String> {
     if is_bt {
         let mut report = [0u8; 78];
         report[0] = 0x11;
         report[1] = 0x80;
-        report[3] = 0xFF;
-        report[6] = r;
-        report[7] = g;
-        report[8] = b;
+        report[3] = 0xFF; // Enable Rumble (0x01) and Lightbar (0x02) and others
+        
+        report[6] = small_rumble;
+        report[7] = large_rumble;
+        report[8] = r;
+        report[9] = g;
+        report[10] = b;
 
         let mut crc_buf = [0u8; 75];
         crc_buf[0] = 0xA2;
@@ -166,10 +177,13 @@ pub fn set_lightbar(device: &hidapi::HidDevice, r: u8, g: u8, b: u8, is_bt: bool
     } else {
         let mut report = [0u8; 32];
         report[0] = 0x05;
-        report[1] = 0xFF;
-        report[4] = r;
-        report[5] = g;
-        report[6] = b;
+        report[1] = 0xFF; // Enable Rumble, Lightbar, and Flash
+        
+        report[4] = small_rumble;
+        report[5] = large_rumble;
+        report[6] = r;
+        report[7] = g;
+        report[8] = b;
 
         device.write(&report).map_err(|e: hidapi::HidError| e.to_string())?;
     }

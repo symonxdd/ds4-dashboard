@@ -23,15 +23,22 @@ fn get_ds4_status(state: State<'_, Arc<AppState>>) -> Ds4Status {
     state.status.lock().unwrap().clone()
 }
 
-/// Tauri command — updates the controller lightbar color.
+/// Tauri command — updates the controller lightbar color and rumble.
 #[tauri::command]
-fn set_lightbar(state: State<'_, Arc<AppState>>, r: u8, g: u8, b: u8) -> Result<(), String> {
+fn set_output_state(
+    state: State<'_, Arc<AppState>>,
+    r: u8,
+    g: u8,
+    b: u8,
+    small_rumble: u8,
+    large_rumble: u8,
+) -> Result<(), String> {
     let device_lock = state.device.lock().unwrap();
     let info_lock = state.device_info.lock().unwrap();
 
     if let (Some(device), Some(info)) = (&*device_lock, &*info_lock) {
         let is_bt = matches!(info.bus_type(), hidapi::BusType::Bluetooth);
-        ds4_hid::set_lightbar(device, r, g, b, is_bt)
+        ds4_hid::set_output_state(device, r, g, b, small_rumble, large_rumble, is_bt)
     } else {
         Err("No controller connected".into())
     }
@@ -48,7 +55,7 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .manage(app_state.clone())
-        .invoke_handler(tauri::generate_handler![get_ds4_status, set_lightbar])
+        .invoke_handler(tauri::generate_handler![get_ds4_status, set_output_state])
         .setup(move |app| {
             // ── System Tray ──────────────────────────────────────
             let show = MenuItem::with_id(app, "show", "Show Dashboard", true, None::<&str>)?;

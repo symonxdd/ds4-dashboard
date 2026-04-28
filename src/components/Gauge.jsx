@@ -1,4 +1,4 @@
-import { Battery } from "lucide-react";
+import { Battery, Zap, Bluetooth, Usb } from "lucide-react";
 import styles from "./Gauge.module.css";
 
 const ARC_DEGREES = 240;
@@ -13,8 +13,9 @@ function getColor(battery, charging) {
   return "#ef4444"; // red
 }
 
-export default function Gauge({ battery, charging, connected }) {
+export default function Gauge({ battery, charging, connected, connection }) {
   const color = getColor(battery, charging);
+  const isBT = connection === "Bluetooth";
 
   // Calculate how much of the arc to fill
   const fillLength = connected ? ARC_LENGTH * (battery / 100) : 0;
@@ -22,11 +23,6 @@ export default function Gauge({ battery, charging, connected }) {
 
   return (
     <div className={styles.wrapper}>
-      {connected && (
-        <div className={styles.iconContainer} data-tooltip="The controller's battery level">
-          <Battery size={20} className={styles.topIcon} />
-        </div>
-      )}
       
       <svg viewBox="0 0 180 140" className={styles.svg}>
         {/* Background arc */}
@@ -53,9 +49,26 @@ export default function Gauge({ battery, charging, connected }) {
       {/* Center text */}
       <div className={styles.center}>
         {connected ? (
-          <span className={styles.batteryValue} style={{ color }}>
-            {battery}
-          </span>
+          <>
+            <div className={`${styles.iconContainer} ${styles.topIconContainer}`} data-tooltip="The controller's battery level">
+              <Battery size={20} className={styles.topIcon} style={{ color }} />
+            </div>
+            <span className={styles.batteryValue} style={{ color }}>
+              {battery}
+            </span>
+            <div className={styles.iconsRow}>
+              <div className={styles.iconContainer} data-tooltip={isBT ? "Connected via Bluetooth" : "Connected via USB"}>
+                {isBT ? <Bluetooth size={16} className={styles.connIcon} /> : <Usb size={16} className={styles.connIcon} />}
+              </div>
+              
+              {charging && (
+                <div className={styles.iconContainer} data-tooltip="Controller is charging">
+                  <div className={styles.ripple} />
+                  <Zap size={18} className={styles.chargingIcon} />
+                </div>
+              )}
+            </div>
+          </>
         ) : null}
       </div>
     </div>

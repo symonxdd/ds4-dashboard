@@ -84,6 +84,7 @@ function App() {
             battery={battery} 
             charging={charging} 
             connected={connected} 
+            connection={connection}
           />
         </div>
 
