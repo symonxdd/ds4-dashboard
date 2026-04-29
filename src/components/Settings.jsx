@@ -1,17 +1,25 @@
 import { useState, useEffect } from "react";
+import { getVersion } from "@tauri-apps/api/app";
 import styles from "./Settings.module.css";
 
 export default function Settings({ open, onClose, status }) {
   const [remoteVersion, setRemoteVersion] = useState(null);
-  const currentVersion = "0.1.0";
+  const [currentVersion, setCurrentVersion] = useState(null);
+
   const repoUrl = "https://github.com/symonxdd/ds4-dashboard";
 
   useEffect(() => {
+    // Get local version from Tauri
+    getVersion().then(setCurrentVersion);
+
+    // Fetch latest GitHub release
     fetch("https://api.github.com/repos/symonxdd/ds4-dashboard/releases/latest")
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         if (data.tag_name) {
-          const clean = data.tag_name.startsWith("v") ? data.tag_name.slice(1) : data.tag_name;
+          const clean = data.tag_name.startsWith("v")
+            ? data.tag_name.slice(1)
+            : data.tag_name;
           setRemoteVersion(clean);
         }
       })
@@ -19,12 +27,14 @@ export default function Settings({ open, onClose, status }) {
   }, []);
 
   const isNewer = (remote, local) => {
-    if (!remote) return false;
+    if (!remote || !local) return false;
+
     const r = remote.split(".").map(Number);
     const l = local.split(".").map(Number);
+
     for (let i = 0; i < 3; i++) {
-      if (r[i] > l[i]) return true;
-      if (r[i] < l[i]) return false;
+      if ((r[i] || 0) > (l[i] || 0)) return true;
+      if ((r[i] || 0) < (l[i] || 0)) return false;
     }
     return false;
   };
@@ -55,19 +65,32 @@ export default function Settings({ open, onClose, status }) {
         </div>
 
         <div className={styles.footer}>
-          v{currentVersion} ({env}
-          {remoteVersion ? (
+          v{currentVersion ?? "…"} ({env}
+          {remoteVersion && currentVersion && (
             <>
-              , {" "}
+              ,{" "}
               <span
-                className={updateAvailable ? styles.updateLink : styles.latestText}
-                data-tooltip={updateAvailable ? "A new version is available on GitHub" : "You are using the latest version"}
-                onClick={() => updateAvailable && window.open(`${repoUrl}/releases/latest`, "_blank")}
+                className={
+                  updateAvailable
+                    ? styles.updateLink
+                    : styles.latestText
+                }
+                data-tooltip={
+                  updateAvailable
+                    ? "A new version is available on GitHub"
+                    : "You are using the latest version"
+                }
+                onClick={() => {
+                  if (updateAvailable) {
+                    window.open(`${repoUrl}/releases/latest`, "_blank");
+                  }
+                }}
               >
                 {updateAvailable ? "update available" : "latest"}
               </span>
             </>
-          ) : ""})
+          )}
+          )
         </div>
       </div>
     </div>
