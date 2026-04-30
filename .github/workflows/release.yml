@@ -1,4 +1,5 @@
 name: Release
+
 on:
   push:
     tags:
@@ -9,36 +10,64 @@ permissions:
 
 jobs:
   publish:
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - platform: 'windows-latest'
-            args: ''
+    runs-on: windows-latest
 
-    runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v6
 
-      - name: setup node
+      - name: Setup Node
         uses: actions/setup-node@v6
         with:
           node-version: lts/*
 
-      - name: install Rust stable
+      - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
 
-      - name: install frontend dependencies
+      - name: Install dependencies
         run: npm install
 
-      - name: Build and Release
+      # ✅ Build only (no release)
+      - name: Build Tauri app
         uses: tauri-apps/tauri-action@v0.6.2
+        with:
+          args: ''
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tagName: v__VERSION__
-          releaseName: 'DS4 Dashboard v__VERSION__'
-          releaseBody: '🚀 New version of DS4 Dashboard released!'
-          releaseDraft: false
-          prerelease: false
-          args: ${{ matrix.args }}
+
+      # ✅ Rename installer
+      - name: Rename installer
+        shell: pwsh
+        run: |
+          $tag = "${{ github.ref_name }}"
+          $version = $tag -replace '^v', ''
+
+          $source = "src-tauri/target/release/bundle/nsis/DS4 Dashboard_${version}_x64-setup.exe"
+          $target = "DS4 Dashboard v$version Installer.exe"
+
+          Rename-Item -Path $source -NewName $target
+
+          echo "RENAMED_EXE=src-tauri/target/release/bundle/nsis/$target" >> $env:GITHUB_ENV
+
+      # ✅ Create release
+      - name: Create GitHub release
+        shell: pwsh
+        run: |
+          $tag = $env:GITHUB_REF_NAME
+          gh release create $tag `
+            --title "DS4 Dashboard $tag" `
+            --notes "🚀 New version of DS4 Dashboard released!"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # ✅ Upload renamed file with label
+      - name: Upload installer
+        shell: pwsh
+        run: |
+          $tag = "${env:GITHUB_REF_NAME}"
+          $version = $tag -replace '^v', ''
+
+          $file = "${env:RENAMED_EXE}"
+
+          gh release upload $tag "$file#DS4 Dashboard $tag for Windows (.exe installer)"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
