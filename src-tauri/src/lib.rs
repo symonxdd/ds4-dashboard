@@ -1,5 +1,6 @@
 mod tray_icon;
-use ds4_hid::{Ds4Status, Connection};
+use ds4_hid::{Connection, Ds4Status};
+use hidapi::HidApi;
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Duration;
@@ -8,13 +9,14 @@ use tauri::{
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
     Emitter, Manager, State,
 };
-use hidapi::HidApi;
 
 /// Shared application state
 struct AppState {
     status: Mutex<Ds4Status>,
     device: Mutex<Option<hidapi::HidDevice>>,
     device_info: Mutex<Option<hidapi::DeviceInfo>>,
+    tray_visible: Mutex<bool>,
+    close_to_tray: Mutex<bool>,
 }
 
 /// Tauri command — returns the latest DS4 status to the frontend.
@@ -44,18 +46,71 @@ fn set_output_state(
     }
 }
 
+/// Tauri command — toggles the visibility of the tray icon.
+#[tauri::command]
+fn toggle_tray_icon(
+    app_handle: tauri::AppHandle,
+    state: State<'_, Arc<AppState>>,
+    visible: bool,
+) -> Result<(), String> {
+    let mut tray_visible = state.tray_visible.lock().unwrap();
+
+    // Only update if the state is actually changing
+    if *tray_visible != visible {
+        if let Some(tray) = app_handle.tray_by_id("ds4-tray") {
+            tray.set_visible(visible)
+                .map_err(|e| format!("Failed to set tray visibility: {}", e))?;
+            *tray_visible = visible;
+        } else {
+            return Err("Tray icon not found".into());
+        }
+    }
+    Ok(())
+}
+
+/// Tauri command — toggles whether the app minimizes to tray on close.
+#[tauri::command]
+fn toggle_close_to_tray(state: State<'_, Arc<AppState>>, enabled: bool) {
+    let mut close_to_tray = state.close_to_tray.lock().unwrap();
+    *close_to_tray = enabled;
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let app_state = Arc::new(AppState {
         status: Mutex::new(Ds4Status::disconnected()),
         device: Mutex::new(None),
         device_info: Mutex::new(None),
+        tray_visible: Mutex::new(true), // Now starts ON by default
+        close_to_tray: Mutex::new(false), // Start disabled by default
     });
 
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_autostart::init(
+            tauri_plugin_autostart::MacosLauncher::LaunchAgent,
+            Some(vec![]),
+        ))
         .manage(app_state.clone())
-        .invoke_handler(tauri::generate_handler![get_ds4_status, set_output_state])
+        .invoke_handler(tauri::generate_handler![
+            get_ds4_status,
+            set_output_state,
+            toggle_tray_icon,
+            toggle_close_to_tray
+        ])
+        .on_window_event(|window, event| {
+            if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+                let state = window.state::<Arc<AppState>>();
+                let close_to_tray = state.close_to_tray.lock().unwrap();
+                let tray_visible = state.tray_visible.lock().unwrap();
+
+                // Only minimize to tray if the setting is ON AND the tray icon is actually visible
+                if *close_to_tray && *tray_visible {
+                    api.prevent_close();
+                    let _ = window.hide();
+                }
+            }
+        })
         .setup(move |app| {
             // ── System Tray ──────────────────────────────────────
             let show = MenuItem::with_id(app, "show", "Show Dashboard", true, None::<&str>)?;
@@ -166,7 +221,7 @@ pub fn run() {
                     }
 
                     let _ = app_handle.emit("ds4-status-update", &status);
-                    
+
                     // The thread sleeps for 1 second WITHOUT holding any locks.
                     thread::sleep(Duration::from_secs(1));
                 }
@@ -177,4 +232,3 @@ pub fn run() {
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
-

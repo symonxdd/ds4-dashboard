@@ -42,7 +42,7 @@
 /* --- Dark theme --- */
 [data-theme="dark"] {
   /* Brand & Accent */
-  --color-primary: #ce9d15;
+  --color-primary: #FFB000;
   --color-primary-hover: #a81e11;
 
   /* Background Surfaces */
