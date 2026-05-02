@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 import { Settings as SettingsIcon, Info as InfoIcon, Sun, Moon } from "lucide-react";
 
 // Components
@@ -41,6 +42,12 @@ function App() {
     return () => {
       unlisten.then((fn) => fn());
     };
+  }, []);
+
+  useEffect(() => {
+    if (import.meta.env.DEV) {
+      getCurrentWindow().setTitle("DS4 Dashboard (dev)");
+    }
   }, []);
 
   const { connected, connection, battery, charging } = status;
