@@ -77,7 +77,6 @@
   color: var(--text-secondary);
   text-align: center;
   margin-top: 1rem;
-  opacity: 0.5;
   letter-spacing: 0.02em;
 }
 
@@ -85,18 +84,17 @@
 .updateLink {
   position: relative;
   display: inline-block;
-  cursor: default;
 }
 
 .updateLink {
-  text-decoration: underline dotted;
+  text-decoration: underline dotted currentColor;
   text-underline-offset: 3px;
   color: var(--color-primary);
-  opacity: 1;
+  cursor: pointer;
 }
 
 .updateLink:hover {
-  text-decoration: underline;
+  text-decoration: underline solid currentColor;
 }
 
 .latestText::after,

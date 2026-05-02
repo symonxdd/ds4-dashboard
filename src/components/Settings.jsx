@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { getVersion } from "@tauri-apps/api/app";
+import { openUrl } from "@tauri-apps/plugin-opener";
 import styles from "./Settings.module.css";
 
 export default function Settings({ open, onClose, status }) {
@@ -80,9 +81,9 @@ export default function Settings({ open, onClose, status }) {
                     ? "A new version is available on GitHub"
                     : "You are using the latest version"
                 }
-                onClick={() => {
+                onClick={async () => {
                   if (updateAvailable) {
-                    window.open(`${repoUrl}/releases/latest`, "_blank");
+                    await openUrl(`${repoUrl}/releases/latest`);
                   }
                 }}
               >

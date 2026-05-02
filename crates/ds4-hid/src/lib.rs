@@ -1,6 +1,6 @@
 //! # ds4-hid
 //!
-//! A minimal library to read DualShock 4 controller status via HID.
+//! A minimal library to read DualShock 4 controller status through HID.
 //!
 //! Currently supports reading:
 //! - **Connection type** (USB or Bluetooth)
@@ -64,11 +64,13 @@ impl Ds4Status {
 }
 
 pub fn find_ds4(api: &HidApi) -> Option<hidapi::DeviceInfo> {
-    api.device_list().find(|d| {
-        DS4_IDS
-            .iter()
-            .any(|&(vid, pid)| d.vendor_id() == vid && d.product_id() == pid)
-    }).cloned()
+    api.device_list()
+        .find(|d| {
+            DS4_IDS
+                .iter()
+                .any(|&(vid, pid)| d.vendor_id() == vid && d.product_id() == pid)
+        })
+        .cloned()
 }
 
 pub fn poll() -> Ds4Status {
@@ -92,7 +94,7 @@ pub fn poll() -> Ds4Status {
 
 pub fn read_status(device: &hidapi::HidDevice, info: &hidapi::DeviceInfo) -> Ds4Status {
     let is_bt = matches!(info.bus_type(), BusType::Bluetooth);
-    
+
     if is_bt {
         let mut feat = [0u8; 64];
         feat[0] = 0x02;
@@ -105,7 +107,9 @@ pub fn read_status(device: &hidapi::HidDevice, info: &hidapi::DeviceInfo) -> Ds4
             Ok(n) => n,
             Err(_) => continue,
         };
-        if n == 0 { continue; }
+        if n == 0 {
+            continue;
+        }
 
         let report_id = buf[0];
         let data_start = match (report_id, is_bt) {
@@ -114,7 +118,9 @@ pub fn read_status(device: &hidapi::HidDevice, info: &hidapi::DeviceInfo) -> Ds4
             _ => continue,
         };
 
-        if buf.len() < data_start + 30 { continue; }
+        if buf.len() < data_start + 30 {
+            continue;
+        }
 
         let bat_byte = buf[data_start + 29];
         let charging = bat_byte & 0x10 != 0;
@@ -128,7 +134,11 @@ pub fn read_status(device: &hidapi::HidDevice, info: &hidapi::DeviceInfo) -> Ds4
 
         return Ds4Status {
             connected: true,
-            connection: Some(if is_bt { Connection::Bluetooth } else { Connection::Usb }),
+            connection: Some(if is_bt {
+                Connection::Bluetooth
+            } else {
+                Connection::Usb
+            }),
             battery,
             charging,
             vendor_id: Some(info.vendor_id()),
@@ -154,7 +164,7 @@ pub fn set_output_state(
         report[0] = 0x11;
         report[1] = 0x80;
         report[3] = 0xFF; // Enable Rumble (0x01) and Lightbar (0x02) and others
-        
+
         report[6] = small_rumble;
         report[7] = large_rumble;
         report[8] = r;
@@ -164,30 +174,32 @@ pub fn set_output_state(
         let mut crc_buf = [0u8; 75];
         crc_buf[0] = 0xA2;
         crc_buf[1..75].copy_from_slice(&report[0..74]);
-        
+
         let crc = Crc::<u32>::new(&CRC_32_ISO_HDLC);
         let checksum = crc.checksum(&crc_buf);
-        
+
         report[74] = (checksum & 0xFF) as u8;
         report[75] = ((checksum >> 8) & 0xFF) as u8;
         report[76] = ((checksum >> 16) & 0xFF) as u8;
         report[77] = ((checksum >> 24) & 0xFF) as u8;
 
-        device.write(&report).map_err(|e: hidapi::HidError| e.to_string())?;
+        device
+            .write(&report)
+            .map_err(|e: hidapi::HidError| e.to_string())?;
     } else {
         let mut report = [0u8; 32];
         report[0] = 0x05;
         report[1] = 0xFF; // Enable Rumble, Lightbar, and Flash
-        
+
         report[4] = small_rumble;
         report[5] = large_rumble;
         report[6] = r;
         report[7] = g;
         report[8] = b;
 
-        device.write(&report).map_err(|e: hidapi::HidError| e.to_string())?;
+        device
+            .write(&report)
+            .map_err(|e: hidapi::HidError| e.to_string())?;
     }
     Ok(())
 }
-
-

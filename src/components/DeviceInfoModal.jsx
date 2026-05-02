@@ -39,7 +39,7 @@ export default function DeviceInfoModal({ open, onClose, status }) {
         </div>
 
         <div className={styles.infoBox}>
-          This data is retrieved directly from the controller via HID.
+          This data is retrieved from the controller through HID.
         </div>
       </div>
     </div>
