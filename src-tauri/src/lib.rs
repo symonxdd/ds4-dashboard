@@ -10,6 +10,15 @@ use tauri::{
     Emitter, Manager, State,
 };
 
+#[derive(Clone, Copy)]
+struct LightbarState {
+    r: u8,
+    g: u8,
+    b: u8,
+    small_rumble: u8,
+    large_rumble: u8,
+}
+
 /// Shared application state
 struct AppState {
     status: Mutex<Ds4Status>,
@@ -17,6 +26,7 @@ struct AppState {
     device_info: Mutex<Option<hidapi::DeviceInfo>>,
     tray_visible: Mutex<bool>,
     close_to_tray: Mutex<bool>,
+    last_state: Mutex<Option<LightbarState>>,
 }
 
 /// Tauri command — returns the latest DS4 status to the frontend.
@@ -40,9 +50,17 @@ fn set_output_state(
 
     if let (Some(device), Some(info)) = (&*device_lock, &*info_lock) {
         let is_bt = matches!(info.bus_type(), hidapi::BusType::Bluetooth);
+        
+        // Save state for auto-reapply
+        let mut last_state = state.last_state.lock().unwrap();
+        *last_state = Some(LightbarState { r, g, b, small_rumble, large_rumble });
+        
         ds4_hid::set_output_state(device, r, g, b, small_rumble, large_rumble, is_bt)
     } else {
-        Err("No controller connected".into())
+        // Even if no device, save it for when one connects
+        let mut last_state = state.last_state.lock().unwrap();
+        *last_state = Some(LightbarState { r, g, b, small_rumble, large_rumble });
+        Ok(())
     }
 }
 
@@ -83,6 +101,7 @@ pub fn run() {
         device_info: Mutex::new(None),
         tray_visible: Mutex::new(true), // Now starts ON by default
         close_to_tray: Mutex::new(false), // Start disabled by default
+        last_state: Mutex::new(None),
     });
 
     tauri::Builder::default()
@@ -156,13 +175,7 @@ pub fn run() {
             let state = app_state;
 
             thread::spawn(move || {
-                let api = match HidApi::new() {
-                    Ok(api) => api,
-                    Err(_) => return,
-                };
-
                 loop {
-                    // Scope for Mutex guards to ensure they are dropped before sleeping
                     let status = {
                         let mut device_lock = state.device.lock().unwrap();
                         let mut info_lock = state.device_info.lock().unwrap();
@@ -170,10 +183,34 @@ pub fn run() {
 
                         // If not connected, try to find and open a device
                         if device_lock.is_none() {
-                            if let Some(info) = ds4_hid::find_ds4(&api) {
-                                if let Ok(device) = info.open_device(&api) {
-                                    *info_lock = Some(info);
-                                    *device_lock = Some(device);
+                            // Re-initialize HidApi context to refresh device list on Windows
+                            if let Ok(api) = HidApi::new() {
+                                if let Some(info) = ds4_hid::find_ds4(&api) {
+                                    if let Ok(device) = info.open_device(&api) {
+                                        let is_bt = matches!(info.bus_type(), hidapi::BusType::Bluetooth);
+                                        
+                                        // 1. One-time BT handshake
+                                        if is_bt {
+                                            let _ = ds4_hid::send_bt_handshake(&device);
+                                        }
+
+                                        // 2. Auto-apply last state
+                                        let last = state.last_state.lock().unwrap();
+                                        if let Some(s) = *last {
+                                            let _ = ds4_hid::set_output_state(
+                                                &device,
+                                                s.r,
+                                                s.g,
+                                                s.b,
+                                                s.small_rumble,
+                                                s.large_rumble,
+                                                is_bt,
+                                            );
+                                        }
+
+                                        *info_lock = Some(info);
+                                        *device_lock = Some(device);
+                                    }
                                 }
                             }
                         }

@@ -95,12 +95,6 @@ pub fn poll() -> Ds4Status {
 pub fn read_status(device: &hidapi::HidDevice, info: &hidapi::DeviceInfo) -> Ds4Status {
     let is_bt = matches!(info.bus_type(), BusType::Bluetooth);
 
-    if is_bt {
-        let mut feat = [0u8; 64];
-        feat[0] = 0x02;
-        let _ = device.get_feature_report(&mut feat);
-    }
-
     let mut buf = [0u8; 256];
     for _ in 0..10 {
         let n = match device.read_timeout(&mut buf, 100) {
@@ -148,6 +142,15 @@ pub fn read_status(device: &hidapi::HidDevice, info: &hidapi::DeviceInfo) -> Ds4
     }
 
     Ds4Status::disconnected()
+}
+
+pub fn send_bt_handshake(device: &hidapi::HidDevice) -> Result<(), String> {
+    let mut feat = [0u8; 64];
+    feat[0] = 0x02;
+    device
+        .get_feature_report(&mut feat)
+        .map(|_| ())
+        .map_err(|e| e.to_string())
 }
 
 pub fn set_output_state(

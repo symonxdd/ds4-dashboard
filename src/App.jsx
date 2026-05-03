@@ -48,6 +48,15 @@ function App() {
     if (import.meta.env.DEV) {
       getCurrentWindow().setTitle("DS4 Dashboard (dev)");
     }
+
+    // Initial sync of lightbar color from localStorage to backend
+    const saved = localStorage.getItem("lightbar_color");
+    if (saved) {
+      try {
+        const { r, g, b } = JSON.parse(saved);
+        invoke("set_output_state", { r, g, b, smallRumble: 0, largeRumble: 0 }).catch(() => {});
+      } catch (e) {}
+    }
   }, []);
 
   const { connected, connection, battery, charging } = status;

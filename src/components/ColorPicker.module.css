@@ -6,7 +6,7 @@
   border: 1px solid var(--border-glass);
   backdrop-filter: blur(10px);
   width: 100%;
-  max-width: 550px; /* Increased from 400px */
+  max-width: 850px; /* Increased from 550px */
   overflow: hidden;
   /* Specifically transition only height/transform related properties to avoid theme-switch flicker */
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
@@ -55,8 +55,8 @@
 .innerContent {
   display: flex;
   flex-direction: column;
-  gap: 1.75rem; /* Increased gap */
-  padding: 0 1.5rem 1.75rem 1.5rem;
+  padding: 1.5rem 2rem 2.5rem 2rem; /* More generous padding */
+  gap: 2rem;
   opacity: 0;
   transform: translateY(-10px);
   transition: opacity 0.3s, transform 0.3s;
@@ -67,10 +67,94 @@
   transform: translateY(0);
 }
 
-.section {
+.sectionGroup {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem; /* More breathing room */
+  gap: 1.25rem;
+  width: 100%;
+}
+
+.groupHeader {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.groupLabel {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  opacity: 0.5;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.topRow {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 2.5rem;
+  width: 100%;
+}
+
+.colorSection {
+  flex: 1.5;
+  min-width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.brightnessPresetsSection {
+  flex: 1;
+  min-width: 250px;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.brightnessGroup, .presetsGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sectionDivider {
+  width: 100%;
+  height: 1px;
+  background: var(--border-glass);
+  opacity: 0.6;
+  margin: 1rem 0;
+}
+
+.rumbleSection {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.rumbleSliders {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+}
+
+.footer {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  display: flex;
+  justify-content: center;
+}
+
+.footerNote {
+  font-size: 0.7rem;
+  font-weight: 500;
+  opacity: 0.6;
+  color: var(--text-secondary);
+  text-align: center;
+  max-width: 80%;
+  line-height: 1.4;
 }
 
 .sectionTitle {
@@ -83,7 +167,7 @@
 .subTitle {
   font-size: 0.8rem; /* Increased slightly from 0.7rem */
   font-weight: 600;
-  opacity: 0.4;
+  opacity: 0.65;
   margin: 0;
   color: var(--text-secondary);
 }
@@ -110,7 +194,7 @@
 
 .label {
   font-weight: 600;
-  opacity: 0.4;
+  opacity: 0.65;
   font-size: 0.85rem;
 }
 
@@ -171,9 +255,6 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.8rem; /* Increased gap */
-  margin-top: 0.5rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--border-glass);
 }
 
 .colorDot {
