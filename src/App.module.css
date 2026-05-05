@@ -9,6 +9,24 @@
   scrollbar-gutter: stable;
 }
 
+/* Modern minimalist scrollbar */
+.dashboard::-webkit-scrollbar {
+  width: 6px;
+}
+
+.dashboard::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dashboard::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 10px;
+}
+
+.dashboard::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
 .content {
   flex: 1;
   display: flex;

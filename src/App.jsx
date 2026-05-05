@@ -7,7 +7,7 @@ import { Settings as SettingsIcon, Info as InfoIcon, Sun, Moon } from "lucide-re
 // Components
 import Gauge from "./components/Gauge";
 import StatusBadges from "./components/StatusBadges";
-import Settings from "./components/Settings";
+import SettingsModal from "./components/SettingsModal";
 import DeviceInfoModal from "./components/DeviceInfoModal";
 import ColorPicker from "./components/ColorPicker";
 import { useTheme } from "./context/ThemeContext";
@@ -56,6 +56,12 @@ function App() {
         const { r, g, b } = JSON.parse(saved);
         invoke("set_output_state", { r, g, b, smallRumble: 0, largeRumble: 0 }).catch(() => {});
       } catch (e) {}
+    }
+
+    // Initial sync of app icon
+    const savedIcon = localStorage.getItem("app_icon");
+    if (savedIcon) {
+      invoke("set_app_icon", { name: savedIcon }).catch(() => {});
     }
   }, []);
 
@@ -121,7 +127,7 @@ function App() {
         status={status}
       />
 
-      <Settings 
+      <SettingsModal 
         open={settingsOpen} 
         onClose={() => setSettingsOpen(false)} 
       />

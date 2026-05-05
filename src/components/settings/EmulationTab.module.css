@@ -1,0 +1,52 @@
+.tabContent {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.6;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.experimentalBadge {
+  font-size: 0.7rem;
+  background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+  color: var(--color-primary);
+  padding: 0.3rem 0.5rem;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--color-primary) 30%, transparent);
+  text-transform: none;
+  letter-spacing: normal;
+  font-weight: 700;
+  white-space: nowrap;
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  margin: -10px 0; /* Completely nullifies the massive padding's effect on layout */
+}
+
+.infoBox {
+  background: var(--bg-card);
+  padding: 0.75rem;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+}

@@ -25,3 +25,5 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 hidapi = "2.6"
 ds4-hid = { path = "../crates/ds4-hid" }
+enigo = "0.6.1"
+image = "0.25"

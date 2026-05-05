@@ -1,0 +1,76 @@
+.tabContent {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.6;
+}
+
+.iconSelector {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.25rem;
+}
+
+.iconOption {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  cursor: default;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.iconOption:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.iconOption.active {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--accent-color, #3b82f6);
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
+}
+
+.iconOption img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  transition: transform 0.2s ease;
+}
+
+.iconOption.active img {
+  transform: scale(1.1);
+}
+
+.dependentSetting {
+  margin-left: 1.5rem;
+  padding-left: 1rem;
+  border-left: 2px solid rgba(255, 255, 255, 0.15);
+  transition: opacity 0.3s ease, filter 0.3s ease;
+}
+
+.dependentSetting.disabled {
+  opacity: 0.4;
+  filter: grayscale(0.5);
+  pointer-events: none;
+}

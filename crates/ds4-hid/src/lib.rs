@@ -47,6 +47,16 @@ pub struct Ds4Status {
     pub vendor_id: Option<u16>,
     pub product_id: Option<u16>,
     pub is_v2: Option<bool>,
+    // Sticks (0-255, center is ~128)
+    pub left_stick_x: u8,
+    pub left_stick_y: u8,
+    pub right_stick_x: u8,
+    pub right_stick_y: u8,
+    // Touchpad (Touch 1)
+    pub touchpad_active: bool,
+    pub touchpad_x: u16,
+    pub touchpad_y: u16,
+    pub touchpad_button: bool,
 }
 
 impl Ds4Status {
@@ -59,6 +69,14 @@ impl Ds4Status {
             vendor_id: None,
             product_id: None,
             is_v2: None,
+            left_stick_x: 128,
+            left_stick_y: 128,
+            right_stick_x: 128,
+            right_stick_y: 128,
+            touchpad_active: false,
+            touchpad_x: 0,
+            touchpad_y: 0,
+            touchpad_button: false,
         }
     }
 }
@@ -126,6 +144,21 @@ pub fn read_status(device: &hidapi::HidDevice, info: &hidapi::DeviceInfo) -> Ds4
             ((raw_level as u16) * 100 / 8).min(100) as u8
         };
 
+        // Sticks
+        let left_stick_x = buf[data_start + 0];
+        let left_stick_y = buf[data_start + 1];
+        let right_stick_x = buf[data_start + 2];
+        let right_stick_y = buf[data_start + 3];
+
+        // Buttons (Touchpad button is bit 1 of byte 6)
+        let touchpad_button = (buf[data_start + 6] & 0x02) != 0;
+
+        // Touchpad (Touch 1)
+        // Bit 7 is 0 when active
+        let touchpad_active = (buf[data_start + 33] & 0x80) == 0;
+        let touchpad_x = (buf[data_start + 34] as u16) | (((buf[data_start + 35] & 0x0F) as u16) << 8);
+        let touchpad_y = (((buf[data_start + 35] & 0xF0) as u16) >> 4) | ((buf[data_start + 36] as u16) << 4);
+
         return Ds4Status {
             connected: true,
             connection: Some(if is_bt {
@@ -138,6 +171,14 @@ pub fn read_status(device: &hidapi::HidDevice, info: &hidapi::DeviceInfo) -> Ds4
             vendor_id: Some(info.vendor_id()),
             product_id: Some(info.product_id()),
             is_v2: Some(info.product_id() == 0x09CC),
+            left_stick_x,
+            left_stick_y,
+            right_stick_x,
+            right_stick_y,
+            touchpad_active,
+            touchpad_x,
+            touchpad_y,
+            touchpad_button,
         };
     }
 

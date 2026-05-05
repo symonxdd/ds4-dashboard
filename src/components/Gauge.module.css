@@ -66,25 +66,26 @@
 .iconContainer::after {
   content: attr(data-tooltip);
   position: absolute;
-  bottom: 105%;
+  bottom: 150%;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) translateY(10px);
   background: var(--bg-surface);
   color: var(--text-primary);
-  padding: 0.4rem 0.8rem;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  font-weight: 600;
+  padding: 0.6rem 0.9rem;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  font-weight: 400;
   white-space: nowrap;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  border: 1px solid var(--border-subtle);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4), 0 0 0 1px var(--border-subtle);
   pointer-events: none;
   opacity: 0;
   z-index: 100;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .iconContainer:hover::after {
   opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
 
 .chargingIcon {

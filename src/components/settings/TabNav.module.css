@@ -1,0 +1,41 @@
+.tabNav {
+  display: flex;
+  justify-content: center;
+  gap: 0.15rem;
+  padding: 0 1rem 0.25rem;
+  background: transparent;
+  backdrop-filter: blur(12px);
+}
+
+.tabBtn {
+  background: transparent;
+  border: none;
+  padding: 0.35rem 0.6rem;
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: default;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: all 0.2s ease;
+}
+
+.tabBtn:hover {
+  color: var(--text-primary);
+}
+
+.tabIcon {
+  opacity: 0.7;
+}
+
+.activeTab .tabIcon {
+  opacity: 1;
+}
+
+.tabBtn.activeTab {
+  color: var(--color-primary);
+  text-decoration: underline dotted;
+  text-underline-offset: 4px;
+}

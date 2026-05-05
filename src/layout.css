@@ -11,6 +11,10 @@ body {
   color: var(--text-primary);
 }
 
+button {
+  font-family: inherit;
+}
+
 
 #root {
   height: 100vh;
