@@ -76,7 +76,7 @@
   font-size: 0.7rem;
   font-weight: 400;
   white-space: nowrap;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4), 0 0 0 1px var(--border-subtle);
+  border: 1px solid var(--border-subtle);
   pointer-events: none;
   opacity: 0;
   z-index: 100;

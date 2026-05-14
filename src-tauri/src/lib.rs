@@ -110,18 +110,30 @@ fn toggle_stick_emulation(state: State<'_, Arc<AppState>>, enabled: bool) {
     *stick_emulation = enabled;
 }
 
+use include_dir::{include_dir, Dir};
+
+static ALT_ICONS: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/../public/alt-icons");
+static BASE_ICONS: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/icons");
+
 #[tauri::command]
-fn set_app_icon(app_handle: tauri::AppHandle, name: String) -> Result<(), String> {
+fn set_app_icon(app_handle: tauri::AppHandle, id: String) -> Result<(), String> {
     let window = app_handle
         .get_webview_window("main")
         .ok_or("Main window not found")?;
 
-    let bytes = if name == "alt" {
-        include_bytes!("../../public/alt-icons/app-icon-alt.ico").as_slice()
-    } else if name == "alt2" {
-        include_bytes!("../../public/alt-icons/app-icon-alt2.ico").as_slice()
+    // Dynamic lookup: Convert "modern_wired" -> "app-icon-modern-wired.ico"
+    let bytes = if id == "default" {
+        BASE_ICONS
+            .get_file("icon.ico")
+            .map(|f| f.contents())
+            .ok_or("Default icon not found")?
     } else {
-        include_bytes!("../icons/icon.ico").as_slice()
+        // We look for "{id}.ico", replacing underscores with hyphens to match filename best practices
+        let filename = format!("{}.ico", id.replace("_", "-"));
+        ALT_ICONS
+            .get_file(&filename)
+            .map(|f| f.contents())
+            .ok_or(format!("Icon file '{}' not found in embedded storage", filename))?
     };
 
     let icon = decode_ico_to_image(bytes)?;

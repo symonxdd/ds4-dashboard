@@ -27,3 +27,4 @@ hidapi = "2.6"
 ds4-hid = { path = "../crates/ds4-hid" }
 enigo = "0.6.1"
 image = "0.25"
+include_dir = "0.7"

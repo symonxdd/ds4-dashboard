@@ -1,8 +1,8 @@
 import styles from "./SettingItem.module.css";
 
-export default function SettingItem({ title, description, children, disabled }) {
+export default function SettingItem({ title, description, children, disabled, vertical }) {
   return (
-    <div className={`${styles.settingItem} ${disabled ? styles.disabled : ""}`}>
+    <div className={`${styles.settingItem} ${disabled ? styles.disabled : ""} ${vertical ? styles.vertical : ""}`}>
       <div className={styles.settingLabel}>
         <span className={styles.settingTitle}>{title}</span>
         {description && <span className={styles.settingDesc}>{description}</span>}

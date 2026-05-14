@@ -3,7 +3,6 @@ import { getVersion } from "@tauri-apps/api/app";
 import { invoke } from "@tauri-apps/api/core";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { enable, disable, isEnabled } from "@tauri-apps/plugin-autostart";
-import { SiGithub } from "react-icons/si";
 import Modal from "./Modal";
 import styles from "./SettingsModal.module.css";
 
@@ -74,10 +73,13 @@ export default function SettingsModal({ open, onClose }) {
     invoke("toggle_close_to_tray", { enabled: closeToTray }).catch(console.error);
     invoke("toggle_mouse_emulation", { enabled: mouseEmulation }).catch(console.error);
     invoke("toggle_stick_emulation", { enabled: stickEmulation }).catch(console.error);
-    invoke("set_app_icon", { name: appIcon }).catch(console.error);
-    localStorage.setItem("app_icon", appIcon);
     localStorage.setItem("start_minimized", startMinimized);
-  }, [trayVisible, closeToTray, mouseEmulation, stickEmulation, appIcon, startMinimized]);
+  }, [trayVisible, closeToTray, mouseEmulation, stickEmulation, startMinimized]);
+
+  useEffect(() => {
+    invoke("set_app_icon", { id: appIcon }).catch(console.error);
+    localStorage.setItem("app_icon", appIcon);
+  }, [appIcon]);
 
   useEffect(() => {
     // If autostart is enabled, we need to re-enable it with/without the --minimized flag
@@ -152,7 +154,16 @@ export default function SettingsModal({ open, onClose }) {
           />
         );
       case "about":
-        return <AboutTab appIcon={appIcon} />;
+        return (
+          <AboutTab
+            appIcon={appIcon}
+            currentVersion={currentVersion}
+            remoteVersion={remoteVersion}
+            updateAvailable={updateAvailable}
+            repoUrl={repoUrl}
+            env={env}
+          />
+        );
       default:
         return null;
     }
@@ -170,18 +181,6 @@ export default function SettingsModal({ open, onClose }) {
 
       <div className={styles.contentArea}>
         {renderTabContent()}
-      </div>
-
-      <div className={styles.footer}>
-        <span className={styles.footerText}>DS4 Dashboard v{currentVersion ?? "…"} ({env}{remoteVersion && currentVersion && <>{", "}<span className={updateAvailable ? styles.updateLink : styles.latestText} data-tooltip={updateAvailable ? "A new version is available on GitHub" : "You are using the latest version"} onClick={async () => { if (updateAvailable) { await openUrl(`${repoUrl}/releases/latest`); } }}>{updateAvailable ? "update available" : "latest"}</span></>})</span>
-        <button
-          className={styles.githubBtn}
-          onClick={() => openUrl(repoUrl)}
-          aria-label="View source"
-          data-tooltip="View source"
-        >
-          <SiGithub size={14} />
-        </button>
       </div>
     </Modal>
   );

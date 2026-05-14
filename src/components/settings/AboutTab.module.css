@@ -15,6 +15,25 @@
   perspective: 1000px;
 }
 
+.iconWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 140px;
+  height: 140px;
+}
+
+.releaseRing {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 2px solid var(--glow-color, var(--color-primary));
+  pointer-events: none;
+  z-index: 90;
+}
+
 .aboutIcon {
   width: 100px;
   height: 100px;
@@ -23,23 +42,18 @@
   position: relative;
   z-index: 100;
   pointer-events: auto !important;
-  transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.1));
-  border: 1px solid transparent; /* Triggers hardware acceleration for smoother hover */
+  cursor: default;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
-.aboutIcon:hover {
-  transform: translateY(-12px) scale(1.15) rotateX(10deg) rotateY(-5deg);
-  filter: drop-shadow(0 20px 30px rgba(237, 85, 100, 0.4));
-  z-index: 101;
-}
-
-.altIcon:hover {
-  filter: drop-shadow(0 20px 30px rgba(255, 197, 47, 0.5));
-}
-
-.alt2Icon:hover {
-  filter: drop-shadow(0 20px 30px rgba(39, 183, 255, 0.5));
+.dragging {
+  cursor: default !important;
+  z-index: 1000;
 }
 
 .aboutInfo {
@@ -73,18 +87,14 @@
   letter-spacing: 0.1em;
 }
 
-/* Trigger icon shake when credits are hovered */
-.aboutHeader:has(.appCredits:hover) .aboutIcon {
+/* Trigger icon shake when credits are hovered, but NOT if dragging or returning */
+.aboutHeader:has(.appCredits:hover) .aboutIcon:not(.dragging):not(.busy) {
   animation: eliteShake 0.6s infinite ease-in-out;
-  filter: drop-shadow(0 15px 25px rgba(237, 85, 100, 0.25));
+  filter: drop-shadow(0 15px 25px var(--glow-color, rgba(237, 85, 100, 0.25)));
 }
 
-.aboutHeader:has(.appCredits:hover) .altIcon {
-  filter: drop-shadow(0 15px 25px rgba(255, 197, 47, 0.35));
-}
-
-.aboutHeader:has(.appCredits:hover) .alt2Icon {
-  filter: drop-shadow(0 15px 25px rgba(39, 183, 255, 0.35));
+.busy {
+  /* Marker class for interaction blocking */
 }
 
 @keyframes eliteShake {
@@ -145,8 +155,8 @@
 
 .aboutFooter {
   font-size: 0.75rem;
-  color: color-mix(in srgb, var(--text-secondary) 50%, transparent);
-  margin-top: 1.5rem;
+  color: color-mix(in srgb, var(--text-secondary) 75%, transparent);
+  margin-top: 0.5rem;
   line-height: 1.5;
   width: 100%;
 }
@@ -154,7 +164,7 @@
 .tooltipContainer {
   position: relative;
   cursor: default;
-  text-decoration: underline dotted rgba(128, 128, 128, 0.3);
+  text-decoration: underline dotted rgba(128, 128, 128, 0.5);
   text-underline-offset: 4px;
   transition: all 0.2s ease;
   color: inherit;
@@ -180,7 +190,7 @@
   text-align: left;
   white-space: normal;
   width: 260px;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4), 0 0 0 1px var(--border-subtle);
+  border: 1px solid var(--border-subtle);
   pointer-events: none;
   opacity: 0;
   z-index: 300;
@@ -208,3 +218,98 @@
   line-height: 1.4;
   opacity: 0.8;
 }
+
+.footer {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-align: center;
+  margin-top: 0.25rem;
+  padding: 0.5rem 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.footerText {
+  color: var(--text-secondary);
+}
+
+.latestText,
+.updateLink {
+  position: relative;
+  display: inline-block;
+  vertical-align: baseline;
+  border-bottom: 1.5px dotted color-mix(in srgb, var(--text-secondary) 60%, transparent);
+  transition: all 0.2s ease;
+  cursor: default;
+  line-height: 1;
+}
+
+.updateLink {
+  color: var(--color-primary);
+  cursor: pointer;
+}
+
+.latestText:hover,
+.updateLink:hover {
+  border-bottom-color: var(--text-primary);
+  color: var(--text-primary);
+}
+
+.latestText::after,
+.updateLink::after,
+.githubBtn::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%) translateY(5px);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  padding: 0.4rem 0.7rem;
+  border-radius: 8px;
+  font-size: 0.7rem;
+  font-weight: 400;
+  font-family: inherit;
+  white-space: nowrap;
+  border: 1px solid var(--border-subtle);
+  pointer-events: none;
+  opacity: 0;
+  z-index: 300;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.latestText:hover::after,
+.updateLink:hover::after,
+.githubBtn:hover::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.githubBtn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: default;
+  display: flex;
+  align-items: center;
+  padding: 0.25rem;
+  border-radius: 6px;
+  opacity: 0.8;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.githubBtn:hover {
+  opacity: 1;
+  color: var(--text-primary);
+  cursor: pointer !important;
+}
+
+.githubBtn::after {
+  bottom: calc(100% + 7px);
+}
+

@@ -61,7 +61,7 @@ function App() {
     // Initial sync of app icon
     const savedIcon = localStorage.getItem("app_icon");
     if (savedIcon) {
-      invoke("set_app_icon", { name: savedIcon }).catch(() => {});
+      invoke("set_app_icon", { id: savedIcon }).catch(() => {});
     }
   }, []);
 
