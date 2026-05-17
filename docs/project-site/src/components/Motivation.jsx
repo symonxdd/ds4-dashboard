@@ -35,7 +35,7 @@ export const Motivation = () => {
                 transition={{ duration: 0.5, delay: 0.1 }}
                 className="text-xl md:text-2xl font-semibold text-foreground leading-tight"
               >
-                DS4 Dashboard was built for a single reason: <span className="text-blue-500 italic">I needed a way to easily check my controller's battery level.</span>
+                DS4 Dashboard was built for a single reason: <span className="text-blue-500 italic">I needed an easy way to check my controller's battery level on PC.</span>
               </motion.p>
 
               <div className="space-y-6 text-lg text-muted-foreground leading-relaxed">
