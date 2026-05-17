@@ -12,10 +12,18 @@
 export const ICON_REGISTRY = [
   {
     id: "default",
+    label: "DS4 Dashboard",
+    author: "Symon",
+    link: "https://symon.me/",
+    path: "/app-icon.svg",
+    glow: "rgba(163, 3, 251, 0.5)"
+  },
+  {
+    id: "classic-gamepad",
     label: "Classic Gamepad",
     author: "Nikita Golubev (Flaticon)",
     link: "https://www.flaticon.com/free-icon/gamepad_361984",
-    path: "/app-icon.svg",
+    path: "/alt-icons/classic-gamepad.svg",
     glow: "rgba(237, 85, 100, 0.4)"
   },
   {

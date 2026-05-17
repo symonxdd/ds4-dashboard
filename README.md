@@ -11,9 +11,41 @@
 <br/>
 
 <div align="center">
-  <!-- Add a main screenshot here once available -->
-  <!-- <img src="./docs/screens/main.png" alt="Main screen" width="869"> -->
+  <img src="./docs/screens/dark/main.png" alt="DS4 Dashboard Main Screen" width="800">
 </div>
+
+<br/>
+
+## 🖼️ Showcase
+
+<div align="center">
+  <table border="0">
+    <tr>
+      <td align="center">
+        <img src="./docs/screens/dark/lightbar-and-rumble.png" width="400"><br/>
+        <b>Lightbar & Rumble Control</b>
+      </td>
+      <td align="center">
+        <img src="./docs/screens/dark/settings-general-tab.png" width="400"><br/>
+        <b>Customization & Icons</b>
+      </td>
+    </tr>
+  </table>
+</div>
+
+<br/>
+
+## ✨ Features
+
+- 🎮 **Universal Support**: Full compatibility for both **DualShock 4 v1** and **v2** controllers.
+- 🔋 **Real-time Stats**: Instant battery levels, charging states, and connection monitoring.
+- 🌈 **Lightbar & Rumble**: Custom color profiles and haptic testing available at any time.
+- 🖱️ **Experimental Input**: Translate joystick and touchpad movements to control the mouse cursor (Experimental).
+- 🌓 **Dynamic Themes**: Beautiful, minimalist UI with native Dark and Light mode support.
+- 🚀 **High Performance**: Lightweight system footprint thanks to Rust and Tauri.
+- 📥 **Customizable Tray Gauge**: Optional system tray icon with a clean, gauge-style battery status indicator.
+
+<br/>
 
 ## 📥 Downloads
 - Grab the [**latest version**](https://github.com/symonxdd/ds4-dashboard/releases/latest) from the Releases page
@@ -27,16 +59,16 @@
 
 <details>
 <summary>
-<strong>⚠️ What's the "Windows protected your PC" message?</strong>
+<strong>⚠️ What's the "Windows protected the PC" message?</strong>
 </summary>
 
 ### ⚠️ Windows SmartScreen Warning
-When you run the app for the first time on Windows, you might see a warning like this:
+When running the app for the first time on Windows, a warning like this might appear:
 
 <div>
-  <img src="https://raw.githubusercontent.com/symonxdd/epic-switcher/main/docs/screens/smartscreen-warning-a.png" alt="SmartScreen Warning Screenshot a" width="600">
+  <img src="./docs/screens/smart-screen-a.png" alt="SmartScreen Warning Screenshot a" width="600">
   <br/><br/>
-  <img src="https://raw.githubusercontent.com/symonxdd/epic-switcher/main/docs/screens/smartscreen-warning-b.png" alt="SmartScreen Warning Screenshot b" width="600">
+  <img src="./docs/screens/smart-screen-b.png" alt="SmartScreen Warning Screenshot b" width="600">
 </div>
 
 ### 🧠 What's actually happening?
@@ -64,7 +96,8 @@ To fully avoid SmartScreen warnings on Windows, developers are expected to:
 - Have enough users download the app over time to build a strong **reputation score**
 
 These certificates can cost **hundreds of dollars per year**, which isn't always feasible for solo developers or small open-source projects.  
-We're focused on keeping this tool free and accessible.  
+The focus remains on keeping this tool free and accessible.
+  
 > For full details on how SmartScreen works, check out [Microsoft's official documentation](https://learn.microsoft.com/en-us/windows/security/operating-system-security/virus-and-threat-protection/microsoft-defender-smartscreen/)
 
 Thanks for supporting open-source software! 💙
@@ -75,15 +108,15 @@ Thanks for supporting open-source software! 💙
 
 ## 💡 Motivation
 
-DS4 Dashboard was born out of a simple need: **knowing my controller's battery level without opening Steam or digging through Windows settings.**
+DS4 Dashboard was born out of a simple need: **checking controller battery levels without opening Steam or digging through Windows settings.**
 
-Existing tools for DS4 controllers are often either too complex, outdated, or require heavy background services. I wanted something:
+Existing tools for DS4 controllers are often either too complex, outdated, or require heavy background services. A need existed for something:
 
 - **Fast:** Instant startup and minimal resource usage.
 - **Modern:** A clean UI that feels at home on Windows 10/11.
-- **Focused:** No bloat, just the info and controls you need.
+- **Focused:** Direct access to core features and information.
 
-So I built DS4 Dashboard. It provides a focused, high-performance view of your controller's state, leveraging Tauri and Rust for a minimal footprint.
+DS4 Dashboard provides a focused, high-performance view of the controller's state, leveraging Tauri and Rust for a minimal footprint.
 
 <br/>
 
@@ -112,14 +145,14 @@ ds4-dashboard/
 │   └── tauri.conf.json         # Tauri project configuration
 │
 ├── package.json                # Node.js dependencies and scripts
-└── README.md                   # You're reading it ✨
+└── README.md                   # Current document ✨
 ```
 
 <br/>
 
 ## 🔧 Dev Prerequisites
 - To build or run in dev mode, follow the [official Tauri installation guide](https://tauri.app/start/prerequisites/).
-- You'll need **Rust** installed, along with **Node.js** and a package manager like `npm`.
+- Rust is required, along with **Node.js** and a package manager like `npm`.
 
 <br/>
 
@@ -142,7 +175,7 @@ npm run tauri build
 ## 🚀 Release Workflow
 DS4 Dashboard uses an automated release pipeline powered by **GitHub Actions** and a helper script.
 
-To create a new release, I run the release script:
+To create a new release, the release script is executed:
 ```bash
 npm run release
 ```

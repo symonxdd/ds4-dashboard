@@ -112,6 +112,7 @@ fn toggle_stick_emulation(state: State<'_, Arc<AppState>>, enabled: bool) {
 
 use include_dir::{include_dir, Dir};
 
+// Embedded storage for alternative and base icons
 static ALT_ICONS: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/../public/alt-icons");
 static BASE_ICONS: Dir<'_> = include_dir!("$CARGO_MANIFEST_DIR/icons");
 

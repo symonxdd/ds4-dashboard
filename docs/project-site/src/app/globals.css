@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --background: #ffffff;
+  --foreground: #0a0a0a;
+  --muted-foreground: #737373;
+}
+
+.dark {
+  --background: #050505;
+  --foreground: #ffffff;
+  --muted-foreground: #a3a3a3;
+}
+
+/* Bulletproof Theme Image Display Utilities */
+.show-light {
+  display: block !important;
+}
+.show-dark {
+  display: none !important;
+}
+
+.dark .show-light {
+  display: none !important;
+}
+.dark .show-dark {
+  display: block !important;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted-foreground: var(--muted-foreground);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Force default cursor on interactive elements as requested */
+a, button, [role="button"] {
+  cursor: default !important;
+}
+
+/* Custom Animations */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.8s ease-out forwards;
+}
+
+::selection {
+  background: rgba(59, 130, 246, 0.3);
+  color: white;
+}
