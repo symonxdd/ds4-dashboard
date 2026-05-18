@@ -142,7 +142,7 @@ export const LongVersion = () => {
 
         <div className="border-t border-foreground/5 my-8" />
 
-        <h3 className="text-[22px] font-bold text-foreground mt-8">Official Guidance and the Problem with Forks</h3>
+        <h3 className="text-[22px] font-bold text-foreground mt-8">Forks & Archives</h3>
 
         <p>
           DS4Windows has been forked multiple times: originally by InhexSTER, then electrobrains, Jays2Kings, Schmaldeo, and finally Ryochan7.

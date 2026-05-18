@@ -69,6 +69,7 @@ export const Header = () => {
   const { downloadUrl } = useLatestRelease();
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [isLogoHovered, setIsLogoHovered] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -143,8 +144,35 @@ export const Header = () => {
           <div 
             className="flex items-center gap-3 cursor-default"
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            onMouseEnter={() => setIsLogoHovered(true)}
+            onMouseLeave={() => setIsLogoHovered(false)}
           >
-            <img src="/icon.svg" alt="DS4 Dashboard" className="w-8 h-8" />
+            <motion.img 
+              src="/icon.svg" 
+              alt="DS4 Dashboard" 
+              className="w-8 h-8 origin-center" 
+              animate={isLogoHovered ? {
+                x: [0, 2.5, 1.25, -2.5, -1.25, 0],
+                y: [0, -1.25, 2.5, 0, -2.5, 0],
+                rotate: [0, 90, 180, 270, 360],
+                scale: 1.12
+              } : {
+                x: 0,
+                y: 0,
+                rotate: 0,
+                scale: 1
+              }}
+              transition={isLogoHovered ? {
+                x: { repeat: Infinity, duration: 2.2, ease: "easeInOut" },
+                y: { repeat: Infinity, duration: 2.2, ease: "easeInOut" },
+                rotate: { repeat: Infinity, duration: 2.2, ease: "easeInOut" },
+                scale: { type: "spring", stiffness: 300, damping: 18 }
+              } : {
+                type: "spring",
+                stiffness: 300,
+                damping: 18
+              }}
+            />
             <span className="text-[18px] font-[600] leading-[28px] tracking-tight text-foreground">
               DS4 Dashboard
             </span>

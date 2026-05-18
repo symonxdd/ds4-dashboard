@@ -1,8 +1,9 @@
 <div align="center">
-  <a href='' target="_blank">
+  <a href='https://ds4-dashboard.vercel.app' target="_blank">
     <img src="./src-tauri/icons/icon.png" alt="Project Icon" width="100" style="pointer-events: none;">
   </a>
   <h1>DS4 Dashboard</h1>
+  <p><strong><a href="https://ds4-dashboard.vercel.app">ds4-dashboard.vercel.app</a></strong></p>
 </div>
 
 - DS4 Dashboard is a lightweight utility for monitoring DualShock 4 controllers on Windows.
@@ -108,15 +109,12 @@ Thanks for supporting open-source software! 💙
 
 ## 💡 Motivation
 
-DS4 Dashboard was born out of a simple need: **checking controller battery levels without opening Steam or digging through Windows settings.**
+I built DS4 Dashboard to reliably check my controller's battery level and customize the lightbar.
 
-Existing tools for DS4 controllers are often either too complex, outdated, or require heavy background services. A need existed for something:
+While playing PC games (like *Rocket League*), connecting a DualShock 4 is easy enough using modern Windows drivers or Steam Input. However, checking my controller's battery level or customizing the lightbar was surprisingly frustrating. Most legacy tools (like Jays2Kings and Schmaldeo) are long-archived, leaving search results filled with unofficial distribution sites and misleading information.
 
-- **Fast:** Instant startup and minimal resource usage.
-- **Modern:** A clean UI that feels at home on Windows 10/11.
-- **Focused:** Direct access to core features and information.
-
-DS4 Dashboard provides a focused, high-performance view of the controller's state, leveraging Tauri and Rust for a minimal footprint.
+> 📖 **Read the Full Story:** 
+> For the interactive story of how this project started—and how search engines mistakenly point users to dangerous downloads—check out the **[Interactive Motivation Page](https://ds4-dashboard.vercel.app/#motivation)** (featuring short and long editions).
 
 <br/>
 

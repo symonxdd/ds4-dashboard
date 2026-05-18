@@ -8,7 +8,7 @@ export const AnalogStick = () => {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <div className="flex flex-col items-center justify-center p-6 bg-foreground/[0.02] dark:bg-foreground/[0.01] rounded-3xl border border-foreground/10 space-y-4 select-none relative overflow-hidden group">
+    <div className="flex flex-col items-center justify-center p-6 bg-foreground/[0.02] dark:bg-foreground/[0.01] rounded-3xl border border-foreground/10 space-y-4 relative overflow-hidden group">
       <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,0,0,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,0,0,0.02)_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[size:14px_24px] pointer-events-none" />
 
       <div className="text-xs font-bold text-muted-foreground uppercase tracking-widest relative z-10 flex items-center gap-1.5">

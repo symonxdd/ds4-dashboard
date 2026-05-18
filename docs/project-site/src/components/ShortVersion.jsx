@@ -125,9 +125,13 @@ export const ShortVersion = () => {
             edition, at the end of March 2026. I specifically aimed to purchase the V2 variant so that I could play competitively without any input lag worries, though Bluetooth has worked very well in my personal experience. The fact that the V2 allows simultaneous data transfer and charging over USB was exactly what I wanted. Additionally, the V2 features a very clean, minimalist lightbar strip built right into the touchpad, which looks absolutely gorgeous.
           </div>
 
+          <h3 className="text-[20px] font-bold text-foreground pt-4">Connecting to PC</h3>
+
           <p>
             Since I play on PC, I initially thought I needed a tool like DS4Windows just to connect the controller. However, I quickly discovered that this wasn't necessary at all. Modern Windows (Windows 11 on my setup) supports the DualShock 4 out of the box, and for any connection issues in games, Steam has a built-in feature called Steam Input that acts as an excellent compatibility driver layer. The connection itself was solved; I simply needed a reliable way to check my battery on PC.
           </p>
+
+          <h3 className="text-[20px] font-bold text-foreground pt-4">Forks & Archives</h3>
 
           <p>
             While searching for dedicated battery tools, I realized that most software was either outdated or archived. The commonly recommended tool, DS4Windows, had been forked multiple times over the years. Some of these major historical forks (such as <a href="https://github.com/jays2kings/ds4windows" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground underline decoration-muted-foreground/45 hover:decoration-foreground underline-offset-4 font-semibold transition-all duration-200">Jays2Kings</a>, archived October 24, 2021, and <a href="https://github.com/schmaldeo/DS4Windows" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground underline decoration-muted-foreground/45 hover:decoration-foreground underline-offset-4 font-semibold transition-all duration-200">Schmaldeo</a>, archived March 5, 2026) were highly trustworthy during their active periods, but are no longer maintained.
@@ -137,11 +141,15 @@ export const ShortVersion = () => {
             In fact, I couldn't find a single native Windows tool dedicated strictly to displaying the controller's battery level. The only alternative I discovered was a web-based tool, <a href="https://thebitlink.github.io/WebHID-DS4/" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground underline decoration-muted-foreground/45 hover:decoration-foreground underline-offset-4 font-semibold transition-all duration-200">WebHID-DS4</a>. While it works well, it is browser-bound, buggy over Bluetooth connection, and Chromium's WebHID API requires explicit pairing permission from the user every single time the page connects.
           </p>
 
+          <h4 className="text-[17px] md:text-[18px] font-bold text-foreground pt-4">Generative Search & Malicious SEO</h4>
+
           <p>
             Relying on AI-generated summaries or Google’s “AI Overview” to find solutions can be highly misleading. For instance, a recent AI-powered search output falsely claimed that long-archived, outdated forks of DS4Windows were still active, directing users to dangerous destinations:
           </p>
 
           <GoogleAIOverview />
+
+          <h3 className="text-[20px] font-bold text-foreground pt-4">Building a Custom Solution</h3>
 
           <p>
             Knowing that these forks had been officially archived, I decided not to deal with outdated or unmaintained codebases. Instead, I wanted to build a clean, minimal project dedicated strictly to my own requirements: reliably monitoring battery level and eventually implementing lightbar customization.
