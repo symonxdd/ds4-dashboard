@@ -14,12 +14,12 @@ export const GoogleAIOverview = () => {
   }, []);
 
   return (
-    <div className="bg-[#f8f9fa] dark:bg-neutral-900/45 rounded-3xl p-6 border border-neutral-200/80 dark:border-neutral-800/80 shadow-md relative space-y-4 my-8 font-sans">
-      {/* Decorative Glows (contained in child container to allow tooltips to overflow cleanly) */}
-      <div className="absolute inset-0 rounded-3xl overflow-hidden pointer-events-none">
-        <div className="absolute -top-24 -left-24 w-64 h-64 bg-purple-500/10 rounded-full blur-[80px]" />
-        <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-blue-500/10 rounded-full blur-[80px]" />
-      </div>
+    <div
+      className="bg-[#f8f9fa] dark:bg-neutral-900/45 rounded-3xl p-6 border border-neutral-200/80 dark:border-neutral-800/80 shadow-md relative space-y-4 my-8 font-sans"
+      style={{
+        backgroundImage: 'radial-gradient(circle 240px at 0% 0%, rgba(168, 85, 247, 0.08), transparent), radial-gradient(circle 240px at 100% 100%, rgba(59, 130, 246, 0.08), transparent)'
+      }}
+    >
 
       <div className="flex items-center justify-between relative z-10 flex-wrap gap-3">
         <div className="flex items-center gap-2">
