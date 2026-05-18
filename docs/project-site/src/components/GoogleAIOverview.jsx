@@ -14,9 +14,12 @@ export const GoogleAIOverview = () => {
   }, []);
 
   return (
-    <div className="bg-[#f8f9fa] dark:bg-neutral-900/45 rounded-3xl p-6 border border-neutral-200/80 dark:border-neutral-800/80 shadow-md relative overflow-hidden space-y-4 my-8 font-sans">
-      <div className="absolute -top-24 -left-24 w-64 h-64 bg-purple-500/10 rounded-full blur-[80px] pointer-events-none" />
-      <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-blue-500/10 rounded-full blur-[80px] pointer-events-none" />
+    <div className="bg-[#f8f9fa] dark:bg-neutral-900/45 rounded-3xl p-6 border border-neutral-200/80 dark:border-neutral-800/80 shadow-md relative space-y-4 my-8 font-sans">
+      {/* Decorative Glows (contained in child container to allow tooltips to overflow cleanly) */}
+      <div className="absolute inset-0 rounded-3xl overflow-hidden pointer-events-none">
+        <div className="absolute -top-24 -left-24 w-64 h-64 bg-purple-500/10 rounded-full blur-[80px]" />
+        <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-blue-500/10 rounded-full blur-[80px]" />
+      </div>
 
       <div className="flex items-center justify-between relative z-10 flex-wrap gap-3">
         <div className="flex items-center gap-2">
@@ -43,15 +46,15 @@ export const GoogleAIOverview = () => {
         “For the safest and most updated experience, the community generally centralizes distribution through the{' '}
         <span className="relative inline px-1 font-semibold text-red-600 dark:text-red-400 bg-red-500/10 rounded border-b-2 border-red-500 border-dashed group cursor-default">
           Official DS4Windows Website
-          <span className="absolute -top-9 left-1/2 -translate-x-1/2 bg-red-600 text-white text-[10px] px-2.5 py-1 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-20 font-sans uppercase tracking-wider font-bold">
-            🚨 DANGER: Links directly to ds4-windows.com malicious website
+          <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-red-600 text-white text-xs px-3 py-1.5 rounded-xl shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-20 font-sans font-medium w-[220px] sm:w-[280px] md:w-auto whitespace-normal sm:whitespace-nowrap text-center leading-normal">
+            🚨 <span className="font-extrabold uppercase tracking-wider">DANGER</span>: Links directly to ds4-windows.com (malicious website)
           </span>
         </span>
         , which provides archived releases of Ryochan7's build{' '}
         <span className="relative inline px-1 font-semibold text-amber-600 dark:text-amber-400 bg-amber-500/10 rounded border-b-2 border-amber-500 border-dashed group cursor-default">
           as well as active links to the Schmaldeo fork.
-          <span className="absolute -top-9 left-1/2 -translate-x-1/2 bg-amber-600 text-white text-[10px] px-2.5 py-1 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-20 font-sans uppercase tracking-wider font-bold">
-            ⚠️ FALSE: The malicious site contains no links to Schmaldeo's fork
+          <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-amber-600 text-white text-xs px-3 py-1.5 rounded-xl shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-20 font-sans font-medium w-[220px] sm:w-[280px] md:w-auto whitespace-normal sm:whitespace-nowrap text-center leading-normal">
+            ⚠️ <span className="font-extrabold uppercase tracking-wider">FALSE</span>: The malicious site contains no links to Schmaldeo's fork
           </span>
         </span>
         ”
@@ -60,7 +63,7 @@ export const GoogleAIOverview = () => {
       <div className="border-t border-neutral-200 dark:border-neutral-800/80 pt-3 relative z-10">
         <span className="relative inline-block text-xs text-neutral-500 dark:text-neutral-400 bg-neutral-200/20 dark:bg-neutral-800/30 px-2 py-0.5 rounded border-b border-dashed border-neutral-400 dark:border-neutral-600 group/footer cursor-default font-sans leading-none">
           AI responses may include mistakes.
-          <span className="absolute -top-16 left-0 bg-neutral-800 text-white text-[10px] px-3 py-2 rounded-lg shadow-xl opacity-0 group-hover/footer:opacity-100 transition-opacity duration-200 pointer-events-none w-64 z-20 font-sans normal-case leading-relaxed font-normal">
+          <span className="absolute bottom-full mb-2 left-0 bg-neutral-800 text-white text-xs px-3 py-1.5 rounded-xl shadow-xl opacity-0 group-hover/footer:opacity-100 transition-opacity duration-200 pointer-events-none w-64 z-20 font-sans normal-case leading-snug font-medium">
             💡 Google places this disclaimer in fine print at the very bottom of summaries, meaning readers can easily overlook the risk.
           </span>
         </span>

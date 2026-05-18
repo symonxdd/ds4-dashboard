@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Cpu, ExternalLink } from 'lucide-react';
+import { Cpu, ExternalLink, Check } from 'lucide-react';
 import { AnalogStick } from './AnalogStick';
 import { GoogleAIOverview } from './GoogleAIOverview';
 import { SourcingCard } from './SourcingCard';
@@ -39,7 +39,7 @@ export const ShortVersion = () => {
               onMouseEnter={() => setHoverMagma(true)}
               onMouseLeave={() => setHoverMagma(false)}
             >
-              <span className="relative inline-block">
+              <span className="relative inline-block border-b-2 border-dotted border-red-500/60 dark:border-red-400/60 group-hover/magma:border-transparent transition-colors duration-300">
                 <span className="text-red-500 dark:text-red-400 transition-colors duration-300">
                   Red Magma V2
                 </span>
@@ -52,9 +52,9 @@ export const ShortVersion = () => {
               <AnimatePresence>
                 {hoverMagma && (
                   <motion.div
-                    initial={{ opacity: 0, y: 12, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 12, scale: 0.95 }}
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 12 }}
                     transition={{ duration: 0.2 }}
                     className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 z-30 p-3 bg-white/95 dark:bg-neutral-900/95 border border-neutral-200 dark:border-neutral-800 rounded-3xl shadow-xl dark:shadow-2xl w-60 select-none"
                     onClick={(e) => e.stopPropagation()}
@@ -62,21 +62,14 @@ export const ShortVersion = () => {
                     <div className="absolute top-full left-0 right-0 h-4 bg-transparent pointer-events-auto" />
 
                     <div className="relative h-32 w-full bg-neutral-100 dark:bg-neutral-950 rounded-2xl overflow-hidden border border-neutral-200/80 dark:border-neutral-800/80 flex items-center justify-center group/img">
-                      <AnimatePresence mode="wait">
-                        <motion.img
-                          key={activeAngle}
-                          src={controllerImages[activeAngle]}
-                          alt={`DualShock 4 V2 - ${activeAngle} view`}
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                          transition={{ duration: 0.2 }}
-                          className="absolute inset-0 h-full w-full object-cover"
-                          onError={(e) => {
-                            e.currentTarget.style.display = 'none';
-                          }}
-                        />
-                      </AnimatePresence>
+                      <img
+                        src={controllerImages[activeAngle]}
+                        alt={`DualShock 4 V2 - ${activeAngle} view`}
+                        className="absolute inset-0 h-full w-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                        }}
+                      />
 
                       <div className="absolute inset-0 bg-gradient-to-br from-red-500/15 dark:from-red-600/35 to-neutral-200/20 dark:to-neutral-950 flex flex-col justify-between p-3 select-none -z-10">
                         <span className="text-[10px] font-bold text-red-500 dark:text-red-400 uppercase tracking-widest leading-none">DualShock 4 V2</span>
@@ -96,14 +89,13 @@ export const ShortVersion = () => {
                             key={angle}
                             onClick={() => setActiveAngle(angle)}
                             onMouseEnter={() => setActiveAngle(angle)}
-                            className={`px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all cursor-default relative overflow-hidden select-none ${
-                              isActive 
-                                ? 'text-neutral-900 dark:text-white' 
-                                : 'text-neutral-400 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300'
-                            }`}
+                            className={`px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all cursor-default relative overflow-hidden select-none ${isActive
+                              ? 'text-neutral-900 dark:text-white'
+                              : 'text-neutral-400 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300'
+                              }`}
                           >
                             {isActive && (
-                              <motion.span 
+                              <motion.span
                                 layoutId="active-angle-pill-short"
                                 className="absolute inset-0 bg-red-500/10 dark:bg-red-500/20 border border-red-500/10 dark:border-red-500/30 rounded-lg -z-10"
                                 transition={{ type: "spring", stiffness: 380, damping: 30 }}
@@ -121,9 +113,9 @@ export const ShortVersion = () => {
                       href="https://www.amazon.de/dp/B01M4KLNE6"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-1.5 py-1.5 px-3 text-[10px] font-bold text-neutral-500 hover:text-red-500 dark:text-neutral-400 dark:hover:text-red-400 bg-neutral-50 dark:bg-neutral-950 hover:bg-red-500/5 dark:hover:bg-red-500/10 border border-neutral-200/50 dark:border-neutral-800/50 rounded-xl transition-all duration-200 group/amazon select-none"
+                      className="flex items-center justify-center gap-1.5 py-1.5 px-3 text-[10px] font-bold text-neutral-500 hover:text-red-500 dark:text-neutral-400 dark:hover:text-red-400 bg-neutral-50 dark:bg-neutral-950 hover:bg-red-500/5 dark:hover:bg-red-500/10 border border-neutral-200/50 dark:border-neutral-800/50 rounded-xl transition-all duration-200 group/amazon select-none !cursor-pointer"
                     >
-                      <span>Amazon.de Listing</span>
+                      <span>Amazon.de listing</span>
                       <ExternalLink className="w-3 h-3 text-neutral-400 group-hover/amazon:text-red-500 dark:group-hover/amazon:text-red-400 transition-colors" />
                     </a>
                   </motion.div>
@@ -155,33 +147,45 @@ export const ShortVersion = () => {
             Knowing that these forks had been officially archived, I decided not to deal with outdated or unmaintained codebases. Instead, I wanted to build a clean, minimal project dedicated strictly to my own requirements: reliably monitoring battery level and eventually implementing lightbar customization.
           </p>
 
-          <div className="p-6 bg-blue-500/[0.04] border border-blue-500/10 rounded-3xl relative overflow-hidden my-6">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/10 rounded-full blur-2xl pointer-events-none" />
+          <div className="p-6 bg-blue-500/[0.04] border border-blue-500/10 rounded-3xl relative my-6">
+            {/* Contained Decorative Blur */}
+            <div className="absolute inset-0 rounded-3xl overflow-hidden pointer-events-none">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/10 rounded-full blur-2xl" />
+            </div>
             <div className="flex gap-4 items-start relative z-10">
               <div className="p-2 rounded-xl bg-blue-500/10 text-blue-500 shrink-0 mt-0.5">
                 <Cpu className="w-5 h-5" />
               </div>
               <p className="text-sm md:text-base text-foreground font-normal leading-relaxed">
-                By selecting Rust and Tauri for the core architecture, I ensured the dashboard runs with an exceptionally low memory and CPU footprint, delivering a lightweight, highly responsive control center for custom lightbar and battery monitoring. At its heart, it is a tool born from a pursuit of pure simplicity: honed to execute its core objectives flawlessly.
+                By selecting Rust and Tauri for the core architecture, I ensured the dashboard runs with an exceptionally low memory and CPU footprint, delivering a lightweight, highly responsive control center for custom lightbar and battery monitoring.{' '}
+                <span className="relative inline font-medium border-b border-dashed border-neutral-300 dark:border-neutral-700 group/ai cursor-default transition-colors hover:border-neutral-400 dark:hover:border-neutral-500">
+                  At its heart, it is a tool born from a pursuit of pure simplicity: honed to execute its core objectives flawlessly.
+                  <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-neutral-900 text-white text-xs px-3 py-2.5 rounded-xl shadow-xl opacity-0 group-hover/ai:opacity-100 transition-opacity duration-200 pointer-events-none w-[200px] sm:w-[240px] z-20 font-sans normal-case text-center leading-snug font-medium flex flex-col items-center gap-2">
+                    <span className="flex items-center gap-1 text-[11px] font-bold text-green-400 uppercase tracking-wider">
+                      <Check className="w-3 h-3 stroke-[3.5] shrink-0" />
+                      100% Organic Human Text
+                    </span>
+                    <img
+                      src="/sweating-gif.gif"
+                      alt="Sweating Meme"
+                      className="w-full h-auto rounded-lg border border-neutral-800 dark:border-neutral-800 shadow-inner object-cover"
+                    />
+                  </span>
+                </span>
               </p>
             </div>
           </div>
-
-          <p>
-            Ultimately, I built this dashboard for my own setup. I wanted a simple, dependable utility built out of a simple need for precision: keeping track of my controller's battery and customizing its lightbar without any extra bloat.
-          </p>
         </div>
       </div>
 
       <div className="lg:col-span-4 space-y-6">
         <AnalogStick />
 
-        <div className="bg-foreground/[0.02] dark:bg-foreground/[0.01] rounded-3xl p-8 border border-foreground/10 space-y-4 relative overflow-hidden group">
+        <div className="bg-foreground/[0.02] dark:bg-foreground/[0.01] rounded-3xl p-6 border border-foreground/10 space-y-4 relative overflow-hidden group">
           <div className="absolute -top-12 -left-12 w-24 h-24 bg-blue-500/10 rounded-full blur-2xl pointer-events-none" />
           <h3 className="text-xs font-bold uppercase tracking-widest text-blue-500 dark:text-blue-400">The Core Purpose</h3>
-          <p className="text-[15px] md:text-[16px] font-medium text-foreground leading-relaxed font-sans">
-            DS4 Dashboard was built for a single reason:{' '}
-            <span className="text-blue-500 italic font-semibold">I needed a reliable way to check my controller's battery on PC.</span>
+          <p className="text-[15px] md:text-[16px] font-medium text-muted-foreground leading-relaxed font-sans">
+            A reliable way to check my DS4 controller's battery on PC.
           </p>
         </div>
 

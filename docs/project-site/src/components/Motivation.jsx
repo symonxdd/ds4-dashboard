@@ -47,7 +47,7 @@ export const Motivation = () => {
                   activeTab === 'long' ? 'text-white' : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
-                The Deep Dive
+                The Long(er) Read
                 {activeTab === 'long' && (
                   <motion.div
                     layoutId="active-motivation-tab"
