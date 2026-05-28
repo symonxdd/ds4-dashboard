@@ -6,7 +6,7 @@
   <p><strong><a href="https://ds4-dashboard.vercel.app">ds4-dashboard.vercel.app</a></strong></p>
 </div>
 
-- DS4 Dashboard is a lightweight utility for monitoring DualShock 4 controllers on Windows.
+- DS4 Dashboard is a lightweight utility for monitoring the DualShock 4 battery level and customizing the controller's light bar (currently Windows only).
 - Built with performance and aesthetics in mind using Tauri, Rust, and React.
 
 <br/>
