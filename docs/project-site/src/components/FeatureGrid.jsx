@@ -25,8 +25,8 @@ const features = [
     bg: "bg-purple-500/10",
   },
   {
-    title: "Experimental Input",
-    description: "Native Windows input mapping for enhanced compatibility in modern titles.",
+    title: "Mouse Emulation",
+    description: "Control the system cursor directly using the controller's touchpad and analog stick for seamless navigation.",
     icon: Layout,
     color: "text-pink-500",
     bg: "bg-pink-500/10",

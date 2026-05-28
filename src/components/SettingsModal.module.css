@@ -4,6 +4,8 @@
   padding: 0;
   overflow: hidden;
   gap: 0.25rem;
+  max-width: 520px !important;
+  width: 90% !important;
 }
 
 /* Glassmorphic header for settingsCard specifically */
