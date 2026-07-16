@@ -118,6 +118,16 @@ While playing PC games (like *Rocket League*), connecting a DualShock 4 is easy 
 
 <br/>
 
+## 📚 Documentation
+The full docs site is at **[symonxdd.github.io/ds4-dashboard](https://symonxdd.github.io/ds4-dashboard/)**, or browse the same content directly in [docs/](docs/):
+
+- [docs/README.md](docs/README.md): project overview and where to go next
+- [docs/architecture.md](docs/architecture.md): tech stack, folder structure, and how HID communication, the tray gauge, and autostart work under the hood
+- [docs/features.md](docs/features.md): every user-facing feature, and the implementation detail behind each one
+- [docs/bugs-and-quirks.md](docs/bugs-and-quirks.md): real bugs hit and fixed while building this app
+
+<br/>
+
 ## 🗂️ Project Layout
 Here's a quick overview of the main files and folders:
 ```
