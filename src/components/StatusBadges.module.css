@@ -8,10 +8,10 @@
 .badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  font-size: 0.85rem;
+  gap: 0.6rem;
+  padding: 0.7rem 1.4rem;
+  border-radius: 999px;
+  font-size: 0.95rem;
   font-weight: 600;
   letter-spacing: 0.01em;
   background: var(--bg-card);
@@ -40,9 +40,19 @@
 }
 
 .disconnected {
-  background: rgba(241, 65, 68, 0.05);
-  color: var(--color-accent-red);
-  border-color: rgba(241, 65, 68, 0.15);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  border-color: var(--border-subtle);
+}
+
+.disconnected::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.55;
 }
 
 @keyframes pulse-glow {
