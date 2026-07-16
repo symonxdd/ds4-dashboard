@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Personal project instructions, not part of the repo
+/CLAUDE.md
