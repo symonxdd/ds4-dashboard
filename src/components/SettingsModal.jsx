@@ -73,6 +73,9 @@ export default function SettingsModal({ open, onClose }) {
     invoke("toggle_close_to_tray", { enabled: closeToTray }).catch(console.error);
     invoke("toggle_mouse_emulation", { enabled: mouseEmulation }).catch(console.error);
     invoke("toggle_stick_emulation", { enabled: stickEmulation }).catch(console.error);
+    // Persisted to disk (not just localStorage) because the Rust side needs to read this
+    // preference during startup, before the webview and its localStorage exist.
+    invoke("set_start_minimized", { enabled: startMinimized }).catch(console.error);
     localStorage.setItem("start_minimized", startMinimized);
   }, [trayVisible, closeToTray, mouseEmulation, stickEmulation, startMinimized]);
 
@@ -81,15 +84,6 @@ export default function SettingsModal({ open, onClose }) {
     localStorage.setItem("app_icon", appIcon);
   }, [appIcon]);
 
-  useEffect(() => {
-    // If autostart is enabled, we need to re-enable it with/without the --minimized flag
-    // to keep the system entry in sync with the current 'startMinimized' setting.
-    if (autostartEnabled) {
-      const args = startMinimized ? ["--minimized"] : [];
-      enable(args).catch(console.error);
-    }
-  }, [startMinimized]);
-
   const handleAutostartToggle = async () => {
     try {
       if (autostartEnabled) {
@@ -97,8 +91,7 @@ export default function SettingsModal({ open, onClose }) {
         setAutostartEnabled(false);
         localStorage.setItem("autostart", "false");
       } else {
-        const args = startMinimized ? ["--minimized"] : [];
-        await enable(args);
+        await enable();
         setAutostartEnabled(true);
         localStorage.setItem("autostart", "true");
       }

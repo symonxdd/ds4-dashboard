@@ -37,7 +37,11 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_autostart::init(
             tauri_plugin_autostart::MacosLauncher::LaunchAgent,
-            Some(vec![]),
+            // This plugin only accepts args at registration time -- it can't take them
+            // dynamically per `enable()` call -- so we always bake in a marker here and
+            // decide the actual "start minimized" behavior at runtime from a persisted
+            // preference (see `commands::start_minimized_preference`).
+            Some(vec!["--minimized"]),
         ))
         .manage(app_state.clone())
         .invoke_handler(tauri::generate_handler![
@@ -48,6 +52,7 @@ pub fn run() {
             commands::toggle_mouse_emulation,
             commands::toggle_stick_emulation,
             commands::set_app_icon,
+            commands::set_start_minimized,
             commands::set_theme_preference
         ])
         .on_window_event(|window, event| {
@@ -64,12 +69,17 @@ pub fn run() {
             }
         })
         .setup(move |app| {
+            // `--minimized` just marks "this launch came from the OS autostart entry" (it's
+            // always present when autostart is on, see above). The actual decision of whether
+            // to start hidden comes from the persisted "Launch Minimized" preference, since
+            // that can change independently of the (fixed-at-registration) autostart args.
+            let launched_via_autostart = std::env::args().any(|arg| arg == "--minimized");
+            let start_minimized = launched_via_autostart && commands::start_minimized_preference(app.handle());
+
             // The main window is created hidden (see tauri.conf.json) specifically so this can
             // correct its background color to match the user's actual theme (tauri.conf.json's
             // "backgroundColor" is static and theme-unaware) before it's ever shown -- otherwise
             // a light-theme user would see a flash of the hardcoded dark color on every launch.
-            let start_minimized = std::env::args().any(|arg| arg == "--minimized");
-
             if let Some(window) = app.get_webview_window("main") {
                 let _ = window.set_background_color(Some(commands::theme_background_color(app.handle())));
 

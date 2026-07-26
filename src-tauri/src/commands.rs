@@ -5,6 +5,7 @@ use ds4_hid::Ds4Status;
 use crate::state::{AppState, LightbarState};
 use crate::icon_utils::{ALT_ICONS, BASE_ICONS, decode_ico_to_image};
 
+const START_MINIMIZED_FILE: &str = "start_minimized.flag";
 const THEME_PREFERENCE_FILE: &str = "theme_preference.flag";
 
 // Must match --bg-app in src/theme.css for each theme.
@@ -35,6 +36,33 @@ pub fn set_theme_preference(app_handle: AppHandle, theme: String) -> Result<(), 
     let dir = app_handle.path().app_config_dir().map_err(|e| e.to_string())?;
     fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
     fs::write(dir.join(THEME_PREFERENCE_FILE), theme).map_err(|e| e.to_string())
+}
+
+/// Reads the persisted "start minimized" preference from disk. This must be read from disk
+/// (rather than the frontend's localStorage) because it needs to be known during `.setup()`,
+/// before the webview -- and therefore localStorage -- exists.
+pub fn start_minimized_preference(app_handle: &AppHandle) -> bool {
+    app_handle
+        .path()
+        .app_config_dir()
+        .map(|dir| dir.join(START_MINIMIZED_FILE).exists())
+        .unwrap_or(false)
+}
+
+/// Tauri command -- persists the "start minimized" preference so it's readable on next launch.
+#[tauri::command]
+pub fn set_start_minimized(app_handle: AppHandle, enabled: bool) -> Result<(), String> {
+    let dir = app_handle.path().app_config_dir().map_err(|e| e.to_string())?;
+    let path = dir.join(START_MINIMIZED_FILE);
+
+    if enabled {
+        fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+        fs::write(path, b"1").map_err(|e| e.to_string())
+    } else if path.exists() {
+        fs::remove_file(path).map_err(|e| e.to_string())
+    } else {
+        Ok(())
+    }
 }
 
 /// Tauri command — returns the latest DS4 status to the frontend.
