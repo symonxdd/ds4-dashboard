@@ -47,7 +47,8 @@ pub fn run() {
             commands::toggle_close_to_tray,
             commands::toggle_mouse_emulation,
             commands::toggle_stick_emulation,
-            commands::set_app_icon
+            commands::set_app_icon,
+            commands::set_theme_preference
         ])
         .on_window_event(|window, event| {
             if let tauri::WindowEvent::CloseRequested { api, .. } = event {
@@ -63,11 +64,17 @@ pub fn run() {
             }
         })
         .setup(move |app| {
-            // Check for --minimized flag
-            let args: Vec<String> = std::env::args().collect();
-            if args.contains(&"--minimized".to_string()) {
-                if let Some(window) = app.get_webview_window("main") {
-                    let _ = window.hide();
+            // The main window is created hidden (see tauri.conf.json) specifically so this can
+            // correct its background color to match the user's actual theme (tauri.conf.json's
+            // "backgroundColor" is static and theme-unaware) before it's ever shown -- otherwise
+            // a light-theme user would see a flash of the hardcoded dark color on every launch.
+            let start_minimized = std::env::args().any(|arg| arg == "--minimized");
+
+            if let Some(window) = app.get_webview_window("main") {
+                let _ = window.set_background_color(Some(commands::theme_background_color(app.handle())));
+
+                if !start_minimized {
+                    let _ = window.show();
                 }
             }
 

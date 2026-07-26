@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
+import { invoke } from "@tauri-apps/api/core";
 
 const ThemeContext = createContext();
 
@@ -10,14 +11,19 @@ export function ThemeProvider({ children }) {
   const applyTheme = (currentTheme) => {
     const root = document.documentElement;
     let target = currentTheme;
-    
+
     if (currentTheme === "system_default") {
       target = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
     }
-    
+
     root.setAttribute("data-theme", target);
     root.classList.add(target);
     root.classList.remove(target === "dark" ? "light" : "dark");
+
+    // Persisted to disk (not just localStorage) so Rust can paint the native window with the
+    // matching background color before it's ever shown on the next launch -- see
+    // commands::theme_background_color.
+    invoke("set_theme_preference", { theme: target }).catch(console.error);
   };
 
   // Update classes when theme changes

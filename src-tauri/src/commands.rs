@@ -1,8 +1,41 @@
+use std::fs;
 use std::sync::Arc;
-use tauri::{AppHandle, Manager, State};
+use tauri::{webview::Color, AppHandle, Manager, State};
 use ds4_hid::Ds4Status;
 use crate::state::{AppState, LightbarState};
 use crate::icon_utils::{ALT_ICONS, BASE_ICONS, decode_ico_to_image};
+
+const THEME_PREFERENCE_FILE: &str = "theme_preference.flag";
+
+// Must match --bg-app in src/theme.css for each theme.
+const LIGHT_BG: Color = Color(243, 243, 243, 255);
+const DARK_BG: Color = Color(6, 6, 6, 255);
+
+/// Reads the persisted theme preference from disk and returns the matching window background
+/// color, so the native window can be painted with the correct color *before* it's ever shown
+/// -- avoiding a flash of the wrong theme's color that a purely CSS/JS-driven fix can't prevent,
+/// since Rust has no access to the webview's localStorage at window-creation time otherwise.
+pub fn theme_background_color(app_handle: &AppHandle) -> Color {
+    let is_light = app_handle
+        .path()
+        .app_config_dir()
+        .map(|dir| fs::read_to_string(dir.join(THEME_PREFERENCE_FILE)).ok())
+        .ok()
+        .flatten()
+        .map(|s| s.trim() == "light")
+        .unwrap_or(false);
+
+    if is_light { LIGHT_BG } else { DARK_BG }
+}
+
+/// Tauri command -- persists the resolved ("dark"/"light", never "system_default") theme
+/// preference so it's readable on next launch, before the webview exists.
+#[tauri::command]
+pub fn set_theme_preference(app_handle: AppHandle, theme: String) -> Result<(), String> {
+    let dir = app_handle.path().app_config_dir().map_err(|e| e.to_string())?;
+    fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+    fs::write(dir.join(THEME_PREFERENCE_FILE), theme).map_err(|e| e.to_string())
+}
 
 /// Tauri command — returns the latest DS4 status to the frontend.
 #[tauri::command]
@@ -25,11 +58,11 @@ pub fn set_output_state(
 
     if let (Some(device), Some(info)) = (&*device_lock, &*info_lock) {
         let is_bt = matches!(info.bus_type(), hidapi::BusType::Bluetooth);
-        
+
         // Save state for auto-reapply
         let mut last_state = state.last_state.lock().unwrap();
         *last_state = Some(LightbarState { r, g, b, small_rumble, large_rumble });
-        
+
         ds4_hid::set_output_state(device, r, g, b, small_rumble, large_rumble, is_bt)
     } else {
         // Even if no device, save it for when one connects

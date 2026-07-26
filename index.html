@@ -6,6 +6,24 @@
   <link rel="icon" type="image/svg+xml" href="/vite.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>DS4 Dashboard</title>
+  <script>
+    // Runs synchronously, before the browser paints anything, so the correct
+    // theme's CSS variables (see theme.css) are active from the very first
+    // frame. Without this, `:root`'s light-theme values are what's active
+    // until React mounts and ThemeContext's effect (necessarily async, runs
+    // after first paint) sets data-theme -- a real flash of the wrong theme
+    // on every launch, not just a dev-server quirk. Keep this in sync with
+    // ThemeContext.jsx's applyTheme().
+    (function () {
+      var theme = localStorage.getItem("theme") || "system_default";
+      var target = theme === "system_default"
+        ? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
+        : theme;
+      var root = document.documentElement;
+      root.setAttribute("data-theme", target);
+      root.classList.add(target);
+    })();
+  </script>
 </head>
 
 <body>
