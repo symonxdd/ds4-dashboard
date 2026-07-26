@@ -9,7 +9,9 @@ export default function GeneralTab({
   appIcon,
   setAppIcon,
   startMinimized,
-  setStartMinimized
+  setStartMinimized,
+  showAppreciationIcon,
+  setShowAppreciationIcon
 }) {
   const selectedIcon = getIconById(appIcon);
   const activeVariant = getActiveVariant(selectedIcon, appIcon);
@@ -126,28 +128,45 @@ export default function GeneralTab({
       <div className={styles.group}>
         <label className={styles.label}>Application</label>
 
+        <div className={styles.autostartCard}>
+          <SettingItem
+            title="Start with Windows"
+            description="Automatically run the dashboard when you log in"
+          >
+            <Toggle
+              checked={autostartEnabled}
+              onChange={handleAutostartToggle}
+            />
+          </SettingItem>
+
+          {autostartEnabled && (
+            <div className={styles.subSettingRow}>
+              <div className={styles.subSettingLabel}>
+                <span className={styles.subSettingTitle}>Launch Minimized</span>
+                <span className={styles.subSettingDesc}>Automatically hide to system tray on Windows startup</span>
+              </div>
+              <Toggle
+                checked={startMinimized}
+                onChange={(e) => setStartMinimized(e.target.checked)}
+              />
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Support Section */}
+      <div className={styles.group}>
+        <label className={styles.label}>Support</label>
+
         <SettingItem
-          title="Start with Windows"
-          description="Automatically run the dashboard when you log in"
+          title="Show Appreciation Icon"
+          description="Show a small icon in the top bar for starring the project on GitHub"
         >
           <Toggle
-            checked={autostartEnabled}
-            onChange={handleAutostartToggle}
+            checked={showAppreciationIcon}
+            onChange={(e) => setShowAppreciationIcon(e.target.checked)}
           />
         </SettingItem>
-
-        {autostartEnabled && (
-          <div className={styles.subSettingRow}>
-            <div className={styles.subSettingLabel}>
-              <span className={styles.subSettingTitle}>Launch Minimized</span>
-              <span className={styles.subSettingDesc}>Automatically hide to system tray on Windows startup</span>
-            </div>
-            <Toggle
-              checked={startMinimized}
-              onChange={(e) => setStartMinimized(e.target.checked)}
-            />
-          </div>
-        )}
       </div>
     </div>
   );

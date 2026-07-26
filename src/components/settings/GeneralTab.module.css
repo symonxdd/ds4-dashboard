@@ -137,23 +137,21 @@
   opacity: 1;
 }
 
+.autostartCard {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+}
+
 .subSettingRow {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-left: 1rem;
-  padding: 0.5rem 0.75rem;
-  background: var(--bg-card);
-  border-left: 2px solid var(--border-strong);
-  border-radius: 0 8px 8px 0;
+  margin-top: 0.65rem;
+  padding-top: 0.65rem;
+  border-top: 1px solid var(--border-subtle);
   transition: all 0.3s ease;
-}
-
-.subSettingRow.disabled {
-  opacity: 0.4;
-  filter: grayscale(0.5);
-  pointer-events: none;
-  border-left-color: rgba(255, 255, 255, 0.05);
 }
 
 .subSettingLabel {

@@ -49,10 +49,16 @@
 }
 
 
-.themeToggleBtn {
+.leftActions {
   position: absolute;
   top: 1.5rem;
   left: 1.5rem;
+  display: flex;
+  gap: 0.5rem;
+  z-index: 100;
+}
+
+.themeToggleBtn {
   background: none;
   border: none;
   color: var(--text-secondary);
@@ -62,7 +68,6 @@
   align-items: center;
   justify-content: center;
   cursor: default;
-  z-index: 100;
 }
 
 .themeToggleBtn:hover {

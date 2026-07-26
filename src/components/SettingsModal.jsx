@@ -15,7 +15,7 @@ import AboutTab from "./settings/AboutTab";
 
 
 
-export default function SettingsModal({ open, onClose }) {
+export default function SettingsModal({ open, onClose, showAppreciationIcon, setShowAppreciationIcon }) {
   const [activeTab, setActiveTab] = useState("general");
   const [remoteVersion, setRemoteVersion] = useState(null);
   const [currentVersion, setCurrentVersion] = useState(null);
@@ -125,6 +125,8 @@ export default function SettingsModal({ open, onClose }) {
             setAppIcon={setAppIcon}
             startMinimized={startMinimized}
             setStartMinimized={setStartMinimized}
+            showAppreciationIcon={showAppreciationIcon}
+            setShowAppreciationIcon={setShowAppreciationIcon}
           />
         );
       case "emulation":
