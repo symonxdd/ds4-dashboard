@@ -4,7 +4,7 @@
 //!
 //! Currently supports reading:
 //! - **Connection type** (USB or Bluetooth)
-//! - **Battery level** (0–100%)
+//! - **Battery level** (0-100%)
 //! - **Charging state**
 //!
 //! # Example

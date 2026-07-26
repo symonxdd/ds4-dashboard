@@ -135,7 +135,7 @@ export default function AboutTab({
         <span className={styles.tooltipContainer}>
           Fastidiously
           <span className={styles.tooltip}>
-            <div className={styles.tooltipDefinition}>(adverb) — done with very careful attention to detail; extremely precise</div>
+            <div className={styles.tooltipDefinition}>(adverb): done with very careful attention to detail; extremely precise</div>
             <div className={styles.tooltipSynonyms}>
               Synonyms: carefully, precisely
             </div>

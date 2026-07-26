@@ -1,4 +1,4 @@
-use std::fs;
+﻿use std::fs;
 use std::sync::Arc;
 use tauri::{webview::Color, AppHandle, Manager, State};
 use ds4_hid::Ds4Status;
@@ -65,13 +65,13 @@ pub fn set_start_minimized(app_handle: AppHandle, enabled: bool) -> Result<(), S
     }
 }
 
-/// Tauri command — returns the latest DS4 status to the frontend.
+/// Tauri command: returns the latest DS4 status to the frontend.
 #[tauri::command]
 pub fn get_ds4_status(state: State<'_, Arc<AppState>>) -> Ds4Status {
     state.status.lock().unwrap().clone()
 }
 
-/// Tauri command — updates the controller lightbar color and rumble.
+/// Tauri command: updates the controller lightbar color and rumble.
 #[tauri::command]
 pub fn set_output_state(
     state: State<'_, Arc<AppState>>,
@@ -100,7 +100,7 @@ pub fn set_output_state(
     }
 }
 
-/// Tauri command — toggles the visibility of the tray icon.
+/// Tauri command: toggles the visibility of the tray icon.
 #[tauri::command]
 pub fn toggle_tray_icon(
     app_handle: AppHandle,
@@ -122,28 +122,28 @@ pub fn toggle_tray_icon(
     Ok(())
 }
 
-/// Tauri command — toggles whether the app minimizes to tray on close.
+/// Tauri command: toggles whether the app minimizes to tray on close.
 #[tauri::command]
 pub fn toggle_close_to_tray(state: State<'_, Arc<AppState>>, enabled: bool) {
     let mut close_to_tray = state.close_to_tray.lock().unwrap();
     *close_to_tray = enabled;
 }
 
-/// Tauri command — toggles touchpad mouse emulation.
+/// Tauri command: toggles touchpad mouse emulation.
 #[tauri::command]
 pub fn toggle_mouse_emulation(state: State<'_, Arc<AppState>>, enabled: bool) {
     let mut mouse_emulation = state.mouse_emulation.lock().unwrap();
     *mouse_emulation = enabled;
 }
 
-/// Tauri command — toggles stick mouse emulation.
+/// Tauri command: toggles stick mouse emulation.
 #[tauri::command]
 pub fn toggle_stick_emulation(state: State<'_, Arc<AppState>>, enabled: bool) {
     let mut stick_emulation = state.stick_emulation.lock().unwrap();
     *stick_emulation = enabled;
 }
 
-/// Tauri command — dynamically sets the application taskbar window icon.
+/// Tauri command: dynamically sets the application taskbar window icon.
 #[tauri::command]
 pub fn set_app_icon(app_handle: AppHandle, id: String) -> Result<(), String> {
     let window = app_handle

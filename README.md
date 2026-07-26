@@ -82,7 +82,7 @@ According to [Microsoft's official documentation](https://learn.microsoft.com/en
 - Whether the file is **well-known and frequently downloaded**
 - Whether the app is **digitally signed** with a costly trusted certificate
 
-This is **just a generic warning** — many indie or open-source apps trigger it until they build trust or pay for expensive certificates.
+This is **just a generic warning**: many indie or open-source apps trigger it until they build trust or pay for expensive certificates.
 
 ### ✅ How to dismiss and run
 
@@ -114,7 +114,7 @@ I built DS4 Dashboard to reliably check my controller's battery level and custom
 While playing PC games (like *Rocket League*), connecting a DualShock 4 is easy enough using modern Windows drivers or Steam Input. However, checking my controller's battery level or customizing the lightbar was surprisingly frustrating. Most legacy tools (like Jays2Kings and Schmaldeo) are long-archived, leaving search results filled with unofficial distribution sites and misleading information.
 
 > 📖 **Read the Full Story:** 
-> For the interactive story of how this project started—and how search engines mistakenly point users to dangerous downloads—check out the **[Interactive Motivation Page](https://ds4-dashboard.vercel.app/#motivation)** (featuring short and long editions).
+> For the interactive story of how this project started, and how search engines mistakenly point users to dangerous downloads, check out the **[Interactive Motivation Page](https://ds4-dashboard.vercel.app/#motivation)** (featuring short and long editions).
 
 <br/>
 

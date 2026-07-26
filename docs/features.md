@@ -13,9 +13,9 @@ When no controller is connected, the gauge is empty and a neutral status pill re
 
 An expandable panel (`ColorPicker.jsx`), shown only while a controller is connected:
 
-- **Color**: R/G/B sliders (0–255 each), plus six one-tap presets (PS Blue, Soft Red, Green, Pink, Amber, Pure White).
-- **Brightness**: a separate 0–100% slider applied as a multiplier on top of the chosen RGB before it's sent to the controller, so brightness and color stay independently adjustable.
-- **Rumble**: separate weak-motor and strong-motor sliders (0–255 each), for previewing haptics outside of any game.
+- **Color**: R/G/B sliders (0-255 each), plus six one-tap presets (PS Blue, Soft Red, Green, Pink, Amber, Pure White).
+- **Brightness**: a separate 0-100% slider applied as a multiplier on top of the chosen RGB before it's sent to the controller, so brightness and color stay independently adjustable.
+- **Rumble**: separate weak-motor and strong-motor sliders (0-255 each), for previewing haptics outside of any game.
 
 Every slider drag sends an update immediately, throttled through a small queue (at most one in-flight `set_output_state` call at a time, a 10ms gap between sends) so rapid dragging can't flood the controller with overlapping HID writes. The last-sent color and rumble values are cached on the Rust side and automatically re-applied the moment a controller (re)connects, so unplugging and replugging, or switching a controller from USB to Bluetooth, doesn't reset the lightbar to its default color.
 

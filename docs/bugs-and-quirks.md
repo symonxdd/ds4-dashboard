@@ -15,7 +15,7 @@ const args = startMinimized ? ["--minimized"] : [];
 await enable(args);
 ```
 
-Two things made this silently do nothing. First, the installed plugin's JS `enable()` function doesn't accept an `args` parameter at all — the compiled function is `async function enable() { await invoke('plugin:autostart|enable'); }`, so whatever was passed was simply dropped before it left the frontend. Second, even on the Rust side, this plugin's args are fixed once, at plugin *registration* time (`tauri_plugin_autostart::init(launcher, args)`, called once when the app starts), not accepted per-call by its `enable` command. So no matter what the toggle was set to, the registry entry was always registered with zero arguments. On the Rust side, the code only ever hid the window when it found that flag present:
+Two things made this silently do nothing. First, the installed plugin's JS `enable()` function doesn't accept an `args` parameter at all: the compiled function is `async function enable() { await invoke('plugin:autostart|enable'); }`, so whatever was passed was simply dropped before it left the frontend. Second, even on the Rust side, this plugin's args are fixed once, at plugin *registration* time (`tauri_plugin_autostart::init(launcher, args)`, called once when the app starts), not accepted per-call by its `enable` command. So no matter what the toggle was set to, the registry entry was always registered with zero arguments. On the Rust side, the code only ever hid the window when it found that flag present:
 
 ```rust
 // src-tauri/src/lib.rs (before)
@@ -45,13 +45,13 @@ One practical consequence: this only takes effect for *new* autostart registrati
 
 **Symptom**: connecting a DS4 over Bluetooth showed `0%` battery and reported the connection as USB, even though the controller was clearly paired over BT.
 
-**Cause**: a DS4 boots into Bluetooth "basic mode" by default, sending small `0x01` reports with only stick/button data — no battery bytes at all. `0x01` is also exactly the report ID USB uses, so code that infers connection type from the report ID (rather than asking the OS) reads a basic-mode BT report and concludes "USB," and the battery byte it reads is just empty padding, hence `0%`.
+**Cause**: a DS4 boots into Bluetooth "basic mode" by default, sending small `0x01` reports with only stick/button data and no battery bytes at all. `0x01` is also exactly the report ID USB uses, so code that infers connection type from the report ID (rather than asking the OS) reads a basic-mode BT report and concludes "USB," and the battery byte it reads is just empty padding, hence `0%`.
 
 **Fix**: connection type is read from `hidapi`'s own `bus_type()` instead of guessed from the report ID. Separately, sending Bluetooth feature report `0x02` once per connection (`send_bt_handshake`, via `get_feature_report`) switches the controller into "full mode," where it sends `0x11` reports carrying real battery and IMU data. Both fixes were necessary: reading `bus_type()` alone would have correctly labeled the connection as Bluetooth but still shown `0%`, since basic-mode reports never carry battery data regardless of how they're labeled.
 
 ## Taskbar icon didn't update in release builds (worked fine in dev)
 
-**Symptom**: switching the app icon in Settings updated the window's title-bar icon immediately, in both dev and release builds. But the *taskbar* icon only ever updated live in dev mode — in a real installed release build, the taskbar button stayed stuck on the app's default icon no matter what was picked.
+**Symptom**: switching the app icon in Settings updated the window's title-bar icon immediately, in both dev and release builds. But the *taskbar* icon only ever updated live in dev mode; in a real installed release build, the taskbar button stayed stuck on the app's default icon no matter what was picked.
 
 **Cause**: Windows groups a running process's taskbar button under a Start Menu shortcut's own static icon whenever it can match the process to a registered shortcut, and once grouped, that button ignores further runtime `WM_SETICON` updates entirely. The matching happens by file path: in dev, the app runs from a build output directory (e.g. `target/debug/`) with no shortcut pointing at it, so no match occurs and the taskbar behaves like a normal window, respecting live icon changes. In an installed release build, a Start Menu shortcut points directly at the installed `.exe` path, so Windows matches the running process to it, whether launched via the shortcut or the `.exe` directly, and locks the taskbar button to that shortcut's static icon from then on.
 
