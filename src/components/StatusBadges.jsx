@@ -7,7 +7,10 @@ export default function StatusBadges({ connected, connection, charging }) {
   return (
     <div className={styles.badges}>
       {connected ? null : (
-        <span className={`${styles.badge} ${styles.disconnected}`}>No controller connected</span>
+        <>
+          <span className={`${styles.badge} ${styles.disconnected}`}>No controller connected</span>
+          <span className={styles.hint}>Connect your controller through USB or Bluetooth</span>
+        </>
       )}
     </div>
   );

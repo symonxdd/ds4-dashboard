@@ -1,3 +1,4 @@
+import { openUrl } from "@tauri-apps/plugin-opener";
 import Modal from "./Modal";
 import styles from "./DeviceInfoModal.module.css";
 
@@ -32,7 +33,14 @@ export default function DeviceInfoModal({ open, onClose, status }) {
       </div>
 
       <div className={styles.infoBox}>
-        This data is retrieved from the controller through HID.
+        This data is retrieved from the controller through the{" "}
+        <span
+          className={styles.hidLink}
+          onClick={() => openUrl("https://en.wikipedia.org/wiki/Human_interface_device")}
+        >
+          HID
+        </span>{" "}
+        protocol.
       </div>
     </Modal>
   );

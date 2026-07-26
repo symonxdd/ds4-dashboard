@@ -123,15 +123,17 @@ function App() {
         </button>
       </div>
 
-      <div className={styles.content}>
-        <div className={styles.gaugeSection}>
-          <Gauge
-            battery={battery}
-            charging={charging}
-            connected={connected}
-            connection={connection}
-          />
-        </div>
+      <div className={`${styles.content} ${!connected ? styles.contentEmpty : ""}`}>
+        {connected && (
+          <div className={styles.gaugeSection}>
+            <Gauge
+              battery={battery}
+              charging={charging}
+              connected={connected}
+              connection={connection}
+            />
+          </div>
+        )}
 
         <div className={styles.infoSection}>
           <StatusBadges

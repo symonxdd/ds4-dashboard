@@ -1,17 +1,25 @@
 .badges {
   display: flex;
-  gap: 0.5rem;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
   flex-wrap: wrap;
   justify-content: center;
+}
+
+.hint {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  opacity: 0.7;
 }
 
 .badge {
   display: inline-flex;
   align-items: center;
   gap: 0.6rem;
-  padding: 0.7rem 1.4rem;
+  padding: 0.8rem 1.6rem;
   border-radius: 999px;
-  font-size: 0.95rem;
+  font-size: 1.05rem;
   font-weight: 600;
   letter-spacing: 0.01em;
   background: var(--bg-card);
@@ -40,19 +48,27 @@
 }
 
 .disconnected {
-  background: var(--bg-card);
+  background-color: var(--bg-card);
+  background-image: linear-gradient(
+    100deg,
+    transparent 35%,
+    color-mix(in srgb, var(--text-primary) 10%, transparent) 50%,
+    transparent 65%
+  );
+  background-size: 200% 100%;
+  background-repeat: no-repeat;
   color: var(--text-secondary);
   border-color: var(--border-subtle);
+  animation: shimmer-sweep 5s linear infinite;
 }
 
-.disconnected::before {
-  content: "";
-  width: 6px;
-  height: 6px;
-  flex-shrink: 0;
-  border-radius: 50%;
-  background: currentColor;
-  opacity: 0.55;
+@keyframes shimmer-sweep {
+  0% {
+    background-position: 140% 0;
+  }
+  100% {
+    background-position: -40% 0;
+  }
 }
 
 @keyframes pulse-glow {
