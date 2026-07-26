@@ -167,7 +167,7 @@ ds4-dashboard/
 ## ⚙️ Live Development
 To start the app in dev mode:
 ```bash
-npm run dev
+npm run tauri dev
 ```
 
 <br/>
