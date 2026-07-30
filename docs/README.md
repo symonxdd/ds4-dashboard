@@ -15,6 +15,7 @@ This site documents how the app is built. For downloads, screenshots, and the st
 - **Launch at login**: optionally starts with Windows, optionally minimized straight to the tray.
 - **Mouse/stick emulation**: optionally translates touchpad drags or right-stick deflection into OS-level mouse movement.
 - **Light/dark theme**, plus a set of alternate taskbar/tray icon styles.
+- **Auto-updates**: checks quietly for new versions on startup, then can download and install them from inside the app itself, no separate manual download needed.
 
 ## Where to go next
 

@@ -48,6 +48,19 @@ Under Settings → Emulation, two independent, optional ways to drive the OS mou
 
 Both work by reading the same HID reports already being polled for battery status, so enabling them adds no extra hardware polling.
 
+## Auto-updates
+
+DS4 Dashboard checks for new versions on its own. Under Settings → About:
+
+- **On startup**: the app quietly asks GitHub whether a newer version exists. This only ever fetches a small text file describing the latest version, never a full download, and never shows anything on screen unless there's actually something new. This happens once when the app first opens, and again any time it's been fully closed and reopened, but not just from minimizing to the tray and reopening the window (the app is still running the whole time in that case, so nothing needs re-checking).
+- **If an update exists**: a small inline row appears in the About tab (not a popup) with the new version number, a **Download** button, and a **View on GitHub** link that opens that release's page in your normal web browser.
+- **Downloading** only starts when Download is clicked, with a progress bar while it happens.
+- **The moment a download finishes**, while the app is actively open in front of you, an "Update ready to install" popup (a "modal": a small window that sits on top of the rest of the app until answered) appears on its own, with **Install Now** and **Install Later** buttons.
+- **Installing**: Windows requires closing a running program before it can replace that program's own file on disk, a limitation of Windows itself, not a choice this app makes. Clicking Install Now therefore closes DS4 Dashboard, installs in the background with a small progress window, and reopens the app automatically, all within a few seconds.
+- Choosing **Install Later**, or simply closing the app before installing, does not lose the download as long as the app keeps running (including minimized to the tray). Fully quitting and reopening the app does lose it, but only in the sense that the app quietly checks again on that next launch and offers the same Download prompt, exactly as if nothing had been fetched yet. Nothing is ever installed without the "ready to install" popup appearing live in front of you first.
+
+See [architecture.md](architecture.md#auto-updates) for how updates are verified as genuinely coming from this project before anything is ever installed.
+
 ## Themes & app icons
 
 - **Theme**: light, dark, or "follow system," toggled from the icon in the top-left corner; persisted across restarts. Colors are defined once per theme as CSS custom properties (`src/theme.css`) and referenced everywhere else via `var(--...)`, so there's a single source of truth per theme rather than scattered color literals.

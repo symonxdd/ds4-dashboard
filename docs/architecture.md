@@ -86,6 +86,24 @@ Most settings (theme, tray visibility, close-to-tray, mouse/stick emulation, lig
 
 `ThemeContext` (`src/context/ThemeContext.jsx`) supports `light`, `dark`, and `system_default`, persisted to `localStorage`. It sets a `data-theme` attribute plus a matching class on `<html>`, and the actual colors are defined as CSS custom properties in `src/theme.css`, one block per theme, consumed throughout the component CSS via `var(--...)`.
 
+## Auto-updates
+
+Powered by [`tauri-plugin-updater`](https://v2.tauri.app/plugin/updater/), the official Tauri plugin for this. Its `check()` function fetches a small JSON file (a "manifest": just a file describing what the latest version is and where to get it) from GitHub and compares its version number against the running app's. `download()` and `install()`, the two steps that actually touch the user's disk, are only ever called in direct response to a button click, never automatically; see [features.md](features.md#auto-updates) for the full user-facing flow.
+
+### Verifying updates are genuine
+
+Anyone can, in principle, upload a file to a public GitHub release. What stops a tampered file from being silently installed is a **digital signature** (see [Wikipedia: Digital signature](https://en.wikipedia.org/wiki/Digital_signature) for the general concept), built on **public-key cryptography** (see [Wikipedia: Public-key cryptography](https://en.wikipedia.org/wiki/Public-key_cryptography)): a matched pair of keys, one **private** and kept secret, one **public** and freely shared. The private key (stored only as an encrypted GitHub Actions secret, `TAURI_SIGNING_PRIVATE_KEY`, never committed to this repo or embedded in any built file) signs the installer during the build. The public key, baked directly into the app (`tauri.conf.json`'s `pubkey`), lets the app check that signature before installing anything claiming to be an update.
+
+This is deliberately a one-way relationship: the signature itself, and the public key, are both meant to be seen by anyone, including sitting in plain text inside the publicly downloadable `latest.json`. That's safe specifically because the underlying signature scheme (Tauri uses [minisign](https://jedisct1.github.io/minisign/), built on [Ed25519](https://en.wikipedia.org/wiki/EdDSA)) makes it computationally infeasible to work backward from a public signature to the private key that produced it. Only the private key is ever secret; everything else in this scheme is designed to survive being public.
+
+### Why the app closes itself mid-install
+
+Windows won't let a running program overwrite its own `.exe` file while it's still executing. Calling `install()` therefore always closes DS4 Dashboard first, a limitation of Windows itself rather than a choice made by Tauri or this app. The [NSIS](https://en.wikipedia.org/wiki/Nullsoft_Scriptable_Install_System) installer (the same tool used for a normal first-time install) then runs with `"installMode": "passive"` (a small progress window, no clicks required) and relaunches the app automatically once it finishes. Because the whole process is gone the instant install starts, there's no way for the app's own code to show a custom "relaunch now or later" choice afterward, so the UI warns about the close-and-reopen upfront instead, in the "ready to install" popup.
+
 ## Release pipeline
 
-Covered in the [main README](https://github.com/symonxdd/ds4-dashboard#-release-workflow): `npm run release` bumps the version, commits, tags, and pushes; the tag push triggers `.github/workflows/release.yml`, which builds the Windows installer and publishes it as a GitHub Release.
+Covered in the [main README](https://github.com/symonxdd/ds4-dashboard#-release-workflow): `npm run release` bumps the version, commits, tags, and pushes; the tag push triggers `.github/workflows/release.yml`, which:
+
+1. Builds the Windows installer, signing it with the private key described [above](#verifying-updates-are-genuine) so the app can verify it came from this pipeline.
+2. Publishes it as a GitHub Release, alongside a generated `latest.json`, the manifest file `check()` reads (see [Auto-updates](#auto-updates)).
+3. Reads the installer's real download URL back from GitHub's own API for that manifest, rather than building the URL by hand. See [bugs-and-quirks.md](bugs-and-quirks.md#latestjson-pointed-at-a-404) for why that distinction actually matters.

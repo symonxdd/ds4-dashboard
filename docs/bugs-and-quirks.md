@@ -62,3 +62,11 @@ One practical consequence: this only takes effect for *new* autostart registrati
 **Cause**: Windows' high-DPI shell drops icons submitted below 256×256 rather than upscaling them itself, so a smaller icon picked in Settings could simply fail to appear with no error.
 
 **Fix**: `icon_utils::decode_ico_to_image` always upscales a chosen icon to 256×256 (Lanczos3 filtering) before handing it to `window.set_icon()`.
+
+## latest.json pointed at a 404
+
+**Symptom**: the very first live test of the [auto-update pipeline](architecture.md#release-pipeline) built and published a real signed release successfully, but the app's update check found the new version, downloaded it, and the download URL inside `latest.json` (the manifest file the updater reads to know what to fetch) turned out to be a `404 Not Found`.
+
+**Cause**: the release workflow renames the built installer to a friendly, human-readable name (e.g. `DS4 Dashboard v1.5.0 Installer.exe`) before uploading it, and separately built the `latest.json` download URL by hand from that same name. GitHub, however, silently rewrites spaces in uploaded release-asset filenames to dots when it stores them, so that file actually ended up hosted as `DS4.Dashboard.v1.5.0.Installer.exe`. This isn't documented anywhere obvious; it only surfaced by actually publishing a release and checking the real asset URL against the one the workflow had guessed.
+
+**Fix**: instead of guessing the URL, the workflow now uploads the installer first, then asks GitHub's own REST API for that asset's real `browser_download_url` (the exact address GitHub is actually serving it from) and writes that verbatim into `latest.json`. Verified by publishing two disposable test releases in a row: the first reproduced the 404, the second confirmed the fix by actually resolving.
