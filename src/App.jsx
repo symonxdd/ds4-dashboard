@@ -10,8 +10,10 @@ import StatusBadges from "./components/StatusBadges";
 import SettingsModal from "./components/SettingsModal";
 import DeviceInfoModal from "./components/DeviceInfoModal";
 import AppreciationModal from "./components/AppreciationModal";
+import UpdateReadyModal from "./components/UpdateReadyModal";
 import ColorPicker from "./components/ColorPicker";
 import { useTheme } from "./context/ThemeContext";
+import { useUpdater } from "./hooks/useUpdater";
 
 // Styles
 import styles from "./App.module.css";
@@ -31,6 +33,7 @@ function App() {
   const [infoOpen, setInfoOpen] = useState(false);
   const [appreciationOpen, setAppreciationOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
+  const updater = useUpdater();
 
   const [showAppreciationIcon, setShowAppreciationIcon] = useState(() => {
     const saved = localStorage.getItem("show_appreciation_icon");
@@ -162,6 +165,15 @@ function App() {
         onClose={() => setSettingsOpen(false)}
         showAppreciationIcon={showAppreciationIcon}
         setShowAppreciationIcon={setShowAppreciationIcon}
+        updater={updater}
+      />
+
+      <UpdateReadyModal
+        status={updater.status}
+        updateVersion={updater.updateVersion}
+        showInstallModal={updater.showInstallModal}
+        installNow={updater.installNow}
+        installLater={updater.installLater}
       />
     </main>
   );

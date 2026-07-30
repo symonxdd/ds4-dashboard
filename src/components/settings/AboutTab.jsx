@@ -4,15 +4,14 @@ import { openUrl } from "@tauri-apps/plugin-opener";
 import { SiGithub } from "react-icons/si";
 import styles from "./AboutTab.module.css";
 import { getIconById, getActiveVariant } from "../../constants/icons";
+import UpdateStatus from "./UpdateStatus";
 
 export default function AboutTab({
   appIcon,
-  currentVersion,
-  remoteVersion,
-  updateAvailable,
-  repoUrl,
-  env
+  env,
+  updater
 }) {
+  const { currentVersion, repoUrl } = updater;
   const icon = getIconById(appIcon);
   const variant = getActiveVariant(icon, appIcon);
   const controls = useAnimation();
@@ -104,22 +103,7 @@ export default function AboutTab({
 
       <div className={styles.footer}>
         <span className={styles.footerText}>
-          DS4 Dashboard v{currentVersion ?? "…"} ({env}{remoteVersion && currentVersion && (
-            <>
-              {", "}
-              <span
-                className={updateAvailable ? styles.updateLink : styles.latestText}
-                data-tooltip={updateAvailable ? "A new version is available on GitHub" : "You are using the latest version"}
-                onClick={async () => {
-                  if (updateAvailable) {
-                    await openUrl(`${repoUrl}/releases/latest`);
-                  }
-                }}
-              >
-                {updateAvailable ? "update available" : "latest"}
-              </span>
-            </>
-          )})
+          DS4 Dashboard v{currentVersion ?? "…"} ({env})
         </span>
         <button
           className={styles.githubBtn}
@@ -130,6 +114,8 @@ export default function AboutTab({
           <SiGithub size={14} />
         </button>
       </div>
+
+      <UpdateStatus updater={updater} />
 
       <div className={styles.aboutFooter}>
         <span className={styles.tooltipContainer}>

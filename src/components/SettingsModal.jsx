@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { getVersion } from "@tauri-apps/api/app";
 import { invoke } from "@tauri-apps/api/core";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { enable, disable, isEnabled } from "@tauri-apps/plugin-autostart";
@@ -15,10 +14,8 @@ import AboutTab from "./settings/AboutTab";
 
 
 
-export default function SettingsModal({ open, onClose, showAppreciationIcon, setShowAppreciationIcon }) {
+export default function SettingsModal({ open, onClose, showAppreciationIcon, setShowAppreciationIcon, updater }) {
   const [activeTab, setActiveTab] = useState("general");
-  const [remoteVersion, setRemoteVersion] = useState(null);
-  const [currentVersion, setCurrentVersion] = useState(null);
   const [autostartEnabled, setAutostartEnabled] = useState(false);
 
   const [trayVisible, setTrayVisible] = useState(() => {
@@ -51,20 +48,7 @@ export default function SettingsModal({ open, onClose, showAppreciationIcon, set
     return saved === "true";
   });
 
-  const repoUrl = "https://github.com/symonxdd/ds4-dashboard";
-
   useEffect(() => {
-    getVersion().then(setCurrentVersion);
-    fetch("https://api.github.com/repos/symonxdd/ds4-dashboard/releases/latest")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.tag_name) {
-          const clean = data.tag_name.startsWith("v") ? data.tag_name.slice(1) : data.tag_name;
-          setRemoteVersion(clean);
-        }
-      })
-      .catch(() => { });
-
     isEnabled().then(setAutostartEnabled);
   }, []);
 
@@ -100,18 +84,6 @@ export default function SettingsModal({ open, onClose, showAppreciationIcon, set
     }
   };
 
-  const isNewer = (remote, local) => {
-    if (!remote || !local) return false;
-    const r = remote.split(".").map(Number);
-    const l = local.split(".").map(Number);
-    for (let i = 0; i < 3; i++) {
-      if ((r[i] || 0) > (l[i] || 0)) return true;
-      if ((r[i] || 0) < (l[i] || 0)) return false;
-    }
-    return false;
-  };
-
-  const updateAvailable = isNewer(remoteVersion, currentVersion);
   const env = import.meta.env.DEV ? "dev" : "release";
 
   const renderTabContent = () => {
@@ -152,11 +124,8 @@ export default function SettingsModal({ open, onClose, showAppreciationIcon, set
         return (
           <AboutTab
             appIcon={appIcon}
-            currentVersion={currentVersion}
-            remoteVersion={remoteVersion}
-            updateAvailable={updateAvailable}
-            repoUrl={repoUrl}
             env={env}
+            updater={updater}
           />
         );
       default:

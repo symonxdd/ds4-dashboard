@@ -237,30 +237,6 @@
   color: var(--text-secondary);
 }
 
-.latestText,
-.updateLink {
-  position: relative;
-  display: inline-block;
-  vertical-align: baseline;
-  border-bottom: 1.5px dotted color-mix(in srgb, var(--text-secondary) 60%, transparent);
-  transition: all 0.2s ease;
-  cursor: default;
-  line-height: 1;
-}
-
-.updateLink {
-  color: var(--color-primary);
-  cursor: pointer;
-}
-
-.latestText:hover,
-.updateLink:hover {
-  border-bottom-color: var(--text-primary);
-  color: var(--text-primary);
-}
-
-.latestText::after,
-.updateLink::after,
 .githubBtn::after {
   content: attr(data-tooltip);
   position: absolute;
@@ -282,8 +258,6 @@
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.latestText:hover::after,
-.updateLink:hover::after,
 .githubBtn:hover::after {
   opacity: 1;
   transform: translateX(-50%) translateY(0);

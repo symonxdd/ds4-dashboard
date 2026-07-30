@@ -26,15 +26,17 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      # ✅ Build only (no release)
+      # ✅ Build only (no release), signed so the updater bundle gets a .sig
       - name: Build Tauri app
         uses: tauri-apps/tauri-action@v0.6.2
         with:
           args: ''
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
 
-      # ✅ Rename installer
+      # ✅ Rename installer (and its updater signature alongside it)
       - name: Rename installer
         shell: pwsh
         run: |
@@ -45,8 +47,10 @@ jobs:
           $target = "DS4 Dashboard v$version Installer.exe"
 
           Rename-Item -Path $source -NewName $target
+          Rename-Item -Path "$source.sig" -NewName "$target.sig"
 
           echo "RENAMED_EXE=src-tauri/target/release/bundle/nsis/$target" >> $env:GITHUB_ENV
+          echo "RENAMED_SIG=src-tauri/target/release/bundle/nsis/$target.sig" >> $env:GITHUB_ENV
 
       # ✅ Create release
       - name: Create GitHub release
@@ -69,5 +73,47 @@ jobs:
           $file = "${env:RENAMED_EXE}"
 
           gh release upload $tag "$file#DS4 Dashboard $tag for Windows (.exe installer)"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # ✅ Build latest.json for the updater to discover this release. The
+      # installer's real download URL is read back from GitHub's API rather
+      # than reconstructed locally, because GitHub silently rewrites spaces
+      # in uploaded release-asset filenames to dots, which would otherwise
+      # make the URL we compute ourselves point at a 404.
+      - name: Generate latest.json
+        shell: pwsh
+        run: |
+          $tag = "${env:GITHUB_REF_NAME}"
+          $version = $tag -replace '^v', ''
+          $signature = Get-Content -Raw "${env:RENAMED_SIG}"
+          $url = gh api "repos/${{ github.repository }}/releases/tags/$tag" --jq '.assets[] | select(.name | endswith(".exe")) | .browser_download_url'
+          $pubDate = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
+
+          $manifest = @{
+            version = $version
+            notes = "See the release notes on GitHub."
+            pub_date = $pubDate
+            platforms = @{
+              "windows-x86_64" = @{
+                signature = $signature.Trim()
+                url = $url
+              }
+            }
+          }
+
+          $manifest | ConvertTo-Json -Depth 5 | Set-Content -Path "latest.json" -Encoding utf8
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # ✅ Upload the updater manifest (must be named exactly "latest.json").
+      # Labeled so it doesn't look like a stray, unexplained file to visitors
+      # browsing the release page, since GitHub Releases has no way to attach
+      # a non-public asset, so it can't be hidden outright.
+      - name: Upload updater manifest
+        shell: pwsh
+        run: |
+          $tag = "${env:GITHUB_REF_NAME}"
+          gh release upload $tag "latest.json#latest.json (Used for convenient updates, not meant for manual download)"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
