@@ -59,7 +59,7 @@ jobs:
           $tag = $env:GITHUB_REF_NAME
           gh release create $tag `
             --title "DS4 Dashboard $tag" `
-            --notes "🚀 New version of DS4 Dashboard released!"
+            --notes "🚀 New version of DS4 Dashboard released!`n`nThe latest.json file below is used by the app's convenient update feature, no need to download it manually."
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -114,6 +114,6 @@ jobs:
         shell: pwsh
         run: |
           $tag = "${env:GITHUB_REF_NAME}"
-          gh release upload $tag "latest.json#latest.json (Used for convenient updates, not meant for manual download)"
+          gh release upload $tag "latest.json#latest.json (used for convenient updates, read above)"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
