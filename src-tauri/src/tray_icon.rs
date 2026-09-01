@@ -1,4 +1,56 @@
+use ds4_hid::Connection;
 use tauri::image::Image;
+use tauri::AppHandle;
+
+use crate::state::ControllerView;
+
+/// Repaints the tray icon for the selected controller and lists every connected
+/// one in the tooltip.
+pub fn update(app_handle: &AppHandle, controllers: &[ControllerView]) {
+    let Some(tray) = app_handle.tray_by_id("ds4-tray") else {
+        return;
+    };
+
+    let selected = controllers.iter().find(|controller| controller.selected);
+    let icon = generate_battery_icon(
+        selected.map_or(0, |controller| controller.battery),
+        selected.is_some_and(|controller| controller.charging),
+        selected.is_some(),
+    );
+
+    let _ = tray.set_icon(Some(icon));
+    let _ = tray.set_tooltip(Some(&tooltip(controllers)));
+}
+
+fn tooltip(controllers: &[ControllerView]) -> String {
+    if controllers.is_empty() {
+        return "No controller connected".into();
+    }
+
+    let lines: Vec<String> = controllers
+        .iter()
+        .map(|controller| {
+            let connection = match controller.connection {
+                Connection::Bluetooth => "BT",
+                Connection::Usb => "USB",
+            };
+            // The icon can only show one controller, so mark which one it is.
+            let marker = match (controllers.len(), controller.selected) {
+                (1, _) => "",
+                (_, true) => "▸ ",
+                (_, false) => "   ",
+            };
+            let charging = if controller.charging { " ⚡" } else { "" };
+
+            format!(
+                "{}{}: {}% · {}{}",
+                marker, controller.label, controller.battery, connection, charging
+            )
+        })
+        .collect();
+
+    lines.join("\n")
+}
 
 fn set_pixel(buf: &mut [u8], x: u32, y: u32, r: u8, g: u8, b: u8, a: u8) {
     if x < 32 && y < 32 {
@@ -31,7 +83,7 @@ fn is_gauge_arc_shape(x: f32, y: f32, inner_r: f32, outer_r: f32) -> bool {
     !(angle > 30.0 && angle < 150.0)
 }
 
-pub fn generate_battery_icon_raw(percentage: u8, charging: bool, connected: bool) -> Vec<u8> {
+fn generate_battery_icon_raw(percentage: u8, charging: bool, connected: bool) -> Vec<u8> {
     let mut buf = vec![0u8; 32 * 32 * 4];
 
     // Colors (Matched to UI)

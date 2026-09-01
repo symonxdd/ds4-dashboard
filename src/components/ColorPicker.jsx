@@ -1,7 +1,8 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import styles from "./ColorPicker.module.css";
 import { invoke } from "@tauri-apps/api/core";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { NO_RUMBLE, loadSettings, saveSettings, toOutput } from "../lib/lightbar";
 
 const PRESETS = [
   { name: "PS Blue", hex: "#0037FF", r: 0, g: 55, b: 255 },
@@ -12,89 +13,48 @@ const PRESETS = [
   { name: "Pure White", hex: "#FFFFFF", r: 255, g: 255, b: 255 },
 ];
 
-export default function ColorPicker() {
-  const [rgb, setRgb] = useState(() => {
-    const saved = localStorage.getItem("lightbar_color");
-    return saved ? JSON.parse(saved) : { r: 0, g: 55, b: 255 };
-  });
-  const [brightness, setBrightness] = useState(() => {
-    const saved = localStorage.getItem("lightbar_brightness");
-    return saved ? parseInt(saved) : 100;
-  });
-  const [rumble, setRumble] = useState({ weak: 0, strong: 0 });
+export default function ColorPicker({ controllerId }) {
+  const [settings, setSettings] = useState(() => loadSettings(controllerId));
+  const [rumble, setRumble] = useState(NO_RUMBLE);
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const pendingUpdate = useRef(null);
-  const isProcessing = useRef(false);
+  const { rgb, brightness } = settings;
 
   useEffect(() => {
-    localStorage.setItem("lightbar_color", JSON.stringify(rgb));
-    localStorage.setItem("lightbar_brightness", brightness.toString());
-  }, [rgb, brightness]);
+    setSettings(loadSettings(controllerId));
+    setRumble(NO_RUMBLE);
 
-  const requestUpdate = (newRgb, newRumble, newBrightness) => {
-    pendingUpdate.current = { newRgb, newRumble, newBrightness };
-    if (!isProcessing.current) {
-      processQueue();
-    }
-  };
+    // Rumble is a preview, not a setting, so it must not outlive the panel:
+    // without this, switching controllers would leave the old one buzzing.
+    return () => {
+      invoke("set_output_state", toOutput(controllerId, loadSettings(controllerId)))
+        .catch(console.error);
+    };
+  }, [controllerId]);
 
-  const processQueue = async () => {
-    if (!pendingUpdate.current) return;
+  const apply = (nextSettings, nextRumble) => {
+    setSettings(nextSettings);
+    setRumble(nextRumble);
+    saveSettings(controllerId, nextSettings);
 
-    isProcessing.current = true;
-    const { newRgb, newRumble, newBrightness } = pendingUpdate.current;
-    pendingUpdate.current = null;
-
-    try {
-      // Apply brightness multiplier to RGB values
-      const scale = newBrightness / 100;
-
-      // NOTE: Using snake_case keys to match Rust function arguments
-      await invoke("set_output_state", {
-        r: Math.round(newRgb.r * scale),
-        g: Math.round(newRgb.g * scale),
-        b: Math.round(newRgb.b * scale),
-        smallRumble: newRumble.weak,
-        largeRumble: newRumble.strong,
-      });
-    } catch (err) {
-      console.error("Failed to update controller state:", err);
-    }
-
-    // Use a small delay to prevent flooding, but keep it responsive
-    setTimeout(() => {
-      isProcessing.current = false;
-      if (pendingUpdate.current) {
-        processQueue();
-      }
-    }, 10);
+    invoke("set_output_state", toOutput(controllerId, nextSettings, nextRumble))
+      .catch(console.error);
   };
 
   const handleRgbChange = (channel, value) => {
-    const val = parseInt(value);
-    const newRgb = { ...rgb, [channel]: val };
-    setRgb(newRgb);
-    requestUpdate(newRgb, rumble, brightness);
+    apply({ ...settings, rgb: { ...rgb, [channel]: parseInt(value) } }, rumble);
   };
 
   const handleBrightnessChange = (value) => {
-    const val = parseInt(value);
-    setBrightness(val);
-    requestUpdate(rgb, rumble, val);
-  };
-
-  const handleRumbleChange = (type, value) => {
-    const val = parseInt(value);
-    const newRumble = { ...rumble, [type]: val };
-    setRumble(newRumble);
-    requestUpdate(rgb, newRumble, brightness);
+    apply({ ...settings, brightness: parseInt(value) }, rumble);
   };
 
   const handlePresetSelect = (preset) => {
-    const newRgb = { r: preset.r, g: preset.g, b: preset.b };
-    setRgb(newRgb);
-    requestUpdate(newRgb, rumble, brightness);
+    apply({ ...settings, rgb: { r: preset.r, g: preset.g, b: preset.b } }, rumble);
+  };
+
+  const handleRumbleChange = (motor, value) => {
+    apply(settings, { ...rumble, [motor]: parseInt(value) });
   };
 
   return (
@@ -218,11 +178,10 @@ export default function ColorPicker() {
           </div>
 
           <footer className={styles.footer}>
-            <p className={styles.footerNote}>Settings are saved automatically and are auto-applied when a controller connects.</p>
+            <p className={styles.footerNote}>Settings are saved per controller and are auto-applied when it connects.</p>
           </footer>
         </div>
       </div>
     </div>
   );
 }
-

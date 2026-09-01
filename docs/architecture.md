@@ -17,7 +17,7 @@ description: Tech stack, folder structure, and how HID communication, the tray g
 ```
 ds4-dashboard/
 ├── crates/ds4-hid/       # Standalone HID protocol crate, no Tauri dependency
-├── src-tauri/src/        # Tauri app: window/tray setup, commands, polling loop
+├── src-tauri/src/        # Tauri app: window/tray setup, commands, device supervision
 ├── src/                  # React frontend
 ├── docs/                 # This documentation (source of truth, also read by docs-site/)
 └── docs-site/             # Astro + Starlight site that renders /docs
@@ -30,27 +30,34 @@ ds4-dashboard/
 Tauri connects the two sides two ways:
 
 - **Commands** (`src-tauri/src/commands.rs`): plain Rust functions annotated `#[tauri::command]`, registered in `invoke_handler![...]` in `lib.rs`, and called from React via `invoke("command_name", { args })`. Used for one-off actions the UI triggers: toggling the tray icon, setting the lightbar color, persisting a setting.
-- **Events**: the backend pushes data to the frontend without being asked, via `app_handle.emit("event-name", payload)`, received in React with `listen("event-name", callback)`. The one event in use is `ds4-status-update`, carrying the latest `Ds4Status` (battery, charging, connection type, stick/touchpad state) roughly once a second.
+- **Events**: the backend pushes data to the frontend without being asked, via `app_handle.emit("event-name", payload)`, received in React with `listen("event-name", callback)`. The one event in use is `ds4-controllers-update`, carrying the full list of connected controllers (label, battery, charging, connection type, which one is selected). It is emitted when something the user can actually see changes, not on a timer: a controller connecting or disconnecting, a battery percentage moving, a charger being plugged in, or the selection changing.
 
 ## HID communication (`crates/ds4-hid`)
 
 The DS4 is identified by a small table of known vendor/product ID pairs (covering v1 and v2 hardware, wired and wireless-dongle variants). Once found and opened:
 
 - **USB reports** use report ID `0x01`; the payload starts at byte 1.
-- **Bluetooth reports** use report ID `0x11`; the payload starts at byte 3. A DS4 over Bluetooth boots into a "basic mode" that only sends small `0x01` reports with stick/button data, no battery info at all: the same report ID USB uses, but without the trailing bytes battery parsing needs. Connection type is therefore never guessed from the report ID; it's read directly from `hidapi`'s own `bus_type()`. `send_bt_handshake` sends feature report `0x02` once per connection (`get_feature_report`), which switches the controller into "full mode" (`0x11` reports carrying battery/IMU data) before status reports are parsed.
+- **Bluetooth reports** use report ID `0x11`; the payload starts at byte 3. A DS4 over Bluetooth boots into a "basic mode" that only sends small `0x01` reports with stick/button data, no battery info at all: the same report ID USB uses, but without the trailing bytes battery parsing needs. Connection type is therefore never guessed from the report ID; it's read directly from `hidapi`'s own `bus_type()`. `request_full_mode` sends feature report `0x02` once per connection (`get_feature_report`), which switches the controller into "full mode" (`0x11` reports carrying battery/IMU data) before status reports are parsed.
 - **Battery**: byte 29 of the payload packs both charge state and level: bit `0x10` is the charging flag, and the low nibble is a 0-11 (charging) or 0-8 (on battery) raw level, scaled to a 0-100 percentage. This is why the same raw value maps to a different displayed percentage depending on whether the controller is plugged in.
 - **Sticks and touchpad**: parsed from further into the same report (stick axes as raw 0-255 bytes, center ~128; the first touch point's active flag, X/Y as 12-bit values split across three bytes).
+- **Identity**: every open controller gets a `DeviceId`, taken from its Bluetooth MAC. Over Bluetooth, Windows reports that MAC as the HID serial number; over USB a DS4 has no serial number string at all, so the MAC is read from feature report `0x12` (bytes 1..7, least significant byte first). Where neither works, the HID device path is used instead, which is unique but does not survive a replug. The MAC is what lets a controller keep its color and its place in the UI across reconnects, and across a move between USB and Bluetooth.
 - **Output reports** (lightbar color + rumble) are a different shape per transport: a 32-byte report on USB, and a 78-byte report over Bluetooth that additionally needs a CRC-32 (the same `CRC_32_ISO_HDLC` polynomial as zlib) computed over the report body and appended, or the controller silently ignores it.
 
-## The polling loop (`src-tauri/src/polling.rs`)
+## Controller supervision (`src-tauri/src/controllers.rs`)
 
-A single background thread, spawned once at startup, drives everything hardware-related:
+Any number of controllers can be connected at once, in any mix of USB and Bluetooth, so the backend is built around one thread per controller rather than a single loop over one device.
 
-1. Every 10ms: if no device is open, try to find and open one (so plugging in / turning on a controller is picked up without restarting the app); if one is open, read its latest status report.
-2. If mouse or stick emulation is enabled in settings, translate touchpad deltas or right-stick deflection into relative mouse movement via `enigo`, every tick, for responsiveness.
-3. Every 100th tick (~once a second): regenerate the tray icon, update its tooltip, and emit `ds4-status-update` to the frontend. This is deliberately throttled separately from the 10ms input-emulation loop, since redrawing a 32×32 icon and re-rendering React 100 times a second would be wasted work.
+- **A scan thread** re-enumerates the HID device list every 500ms and opens any DS4 it has not claimed yet, tracked by HID path so the same device is never opened twice. This is the only clock in the backend: `hidapi` offers no hotplug notification on Windows, so a controller being plugged in or switched on can only be discovered by looking.
+- **A reader thread per controller** owns that pad's HID handle for as long as it stays connected, and is the only thread allowed to touch it. It reads reports, applies queued lightbar and rumble writes between reads, and exits when the read fails, which is how a disconnect is detected. A controller only becomes visible to the rest of the app once it has reported for the first time, so a pad never briefly appears with a placeholder battery level.
+- **One emulation thread** owns the process's only `enigo` handle. Reader threads forward input to it only for the selected controller, and only while emulation is enabled, so however many pads are connected exactly one of them can move the cursor.
 
-If a device disconnects mid-read, the loop clears its handle and falls back to searching again on the next tick, so reconnecting (or switching a controller between USB and Bluetooth) is handled automatically rather than requiring an app restart.
+Lightbar and rumble writes reach a controller through its reader thread's queue. Only the most recent queued value is applied and the rest are dropped, since while a color slider is being dragged only the value the user landed on still matters.
+
+The tray icon and the frontend are updated when a user-visible field changes, rather than on a fixed interval. Stick and touchpad data changes constantly but is not displayed, so it is deliberately excluded from that comparison: without it, a redraw would be triggered at report rate.
+
+### The selected controller
+
+One connected controller is "selected" at a time. It is the one the lightbar panel writes to, the one the tray icon draws, and the one allowed to drive input emulation. The backend selects the first controller it sees and re-selects automatically if that one disconnects; the frontend remembers the user's own choice by MAC and restores it whenever that controller reappears.
 
 ## The tray battery gauge (`src-tauri/src/tray_icon.rs`)
 

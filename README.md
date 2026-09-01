@@ -39,6 +39,7 @@
 ## ✨ Features
 
 - 🎮 **Universal Support**: Full compatibility for both **DualShock 4 v1** and **v2** controllers.
+- 🎛️ **Multiple Controllers**: Monitor and customize several controllers at once, in any mix of USB and Bluetooth.
 - 🔋 **Real-time Stats**: Instant battery levels, charging states, and connection monitoring.
 - 🌈 **Lightbar & Rumble**: Custom color profiles and haptic testing available at any time.
 - 🖱️ **Experimental Input**: Translate joystick and touchpad movements to control the mouse cursor (Experimental).

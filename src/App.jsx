@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { getCurrentWindow } from "@tauri-apps/api/window";
@@ -6,6 +6,7 @@ import { Settings as SettingsIcon, Info as InfoIcon, Sun, Moon, Heart } from "lu
 
 // Components
 import Gauge from "./components/Gauge";
+import ControllerCard from "./components/ControllerCard";
 import StatusBadges from "./components/StatusBadges";
 import SettingsModal from "./components/SettingsModal";
 import DeviceInfoModal from "./components/DeviceInfoModal";
@@ -14,26 +15,24 @@ import UpdateReadyModal from "./components/UpdateReadyModal";
 import ColorPicker from "./components/ColorPicker";
 import { useTheme } from "./context/ThemeContext";
 import { useUpdater } from "./hooks/useUpdater";
+import { loadSettings, toOutput } from "./lib/lightbar";
 
 // Styles
 import styles from "./App.module.css";
 
+const SELECTED_CONTROLLER_KEY = "selected_controller";
+
 function App() {
-  const [status, setStatus] = useState({
-    connected: false,
-    connection: null,
-    battery: 0,
-    charging: false,
-    vendor_id: null,
-    product_id: null,
-    is_v2: null,
-  });
+  const [controllers, setControllers] = useState([]);
 
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [infoOpen, setInfoOpen] = useState(false);
   const [appreciationOpen, setAppreciationOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
   const updater = useUpdater();
+
+  const remembered = useRef(localStorage.getItem(SELECTED_CONTROLLER_KEY));
+  const lightbarSynced = useRef(new Set());
 
   const [showAppreciationIcon, setShowAppreciationIcon] = useState(() => {
     const saved = localStorage.getItem("show_appreciation_icon");
@@ -45,12 +44,12 @@ function App() {
   }, [showAppreciationIcon]);
 
   useEffect(() => {
-    // 1. Initial status fetch
-    invoke("get_ds4_status").then(setStatus).catch(console.error);
+    // 1. Initial fetch, for controllers that were already connected at launch
+    invoke("get_controllers").then(setControllers).catch(console.error);
 
     // 2. Listen for real-time updates from Rust
-    const unlisten = listen("ds4-status-update", (event) => {
-      setStatus(event.payload);
+    const unlisten = listen("ds4-controllers-update", (event) => {
+      setControllers(event.payload);
     });
 
     return () => {
@@ -58,18 +57,30 @@ function App() {
     };
   }, []);
 
+  // Rust picks the first controller it sees; restore the user's own choice as
+  // soon as that one shows up.
+  useEffect(() => {
+    const choice = controllers.find(({ id }) => id === remembered.current);
+
+    if (choice && !choice.selected) {
+      invoke("select_controller", { id: choice.id }).catch(console.error);
+    }
+  }, [controllers]);
+
+  // Rust re-applies a controller's color itself while the app is running, so
+  // this only has to cover controllers first seen in this session.
+  useEffect(() => {
+    for (const { id } of controllers) {
+      if (lightbarSynced.current.has(id)) continue;
+      lightbarSynced.current.add(id);
+
+      invoke("set_output_state", toOutput(id, loadSettings(id))).catch(console.error);
+    }
+  }, [controllers]);
+
   useEffect(() => {
     if (import.meta.env.DEV) {
       getCurrentWindow().setTitle("DS4 Dashboard (dev)");
-    }
-
-    // Initial sync of lightbar color from localStorage to backend
-    const saved = localStorage.getItem("lightbar_color");
-    if (saved) {
-      try {
-        const { r, g, b } = JSON.parse(saved);
-        invoke("set_output_state", { r, g, b, smallRumble: 0, largeRumble: 0 }).catch(() => {});
-      } catch (e) {}
     }
 
     // Initial sync of app icon
@@ -79,7 +90,14 @@ function App() {
     }
   }, []);
 
-  const { connected, connection, battery, charging } = status;
+  const selectController = (id) => {
+    remembered.current = id;
+    localStorage.setItem(SELECTED_CONTROLLER_KEY, id);
+    invoke("select_controller", { id }).catch(console.error);
+  };
+
+  const selected = controllers.find(({ selected }) => selected) ?? null;
+  const showGrid = controllers.length > 1;
 
   return (
     <main className={styles.dashboard}>
@@ -109,16 +127,16 @@ function App() {
 
       {/* Action Buttons (Right) */}
       <div className={styles.rightActions}>
-        <button 
-          className={styles.actionBtn} 
+        <button
+          className={styles.actionBtn}
           onClick={() => setInfoOpen(true)}
           aria-label="View Device Info"
         >
           <InfoIcon size={18} />
         </button>
 
-        <button 
-          className={styles.actionBtn} 
+        <button
+          className={styles.actionBtn}
           onClick={() => setSettingsOpen(true)}
           aria-label="Open Settings"
         >
@@ -126,25 +144,33 @@ function App() {
         </button>
       </div>
 
-      <div className={`${styles.content} ${!connected ? styles.contentEmpty : ""}`}>
-        {connected && (
-          <div className={styles.gaugeSection}>
-            <Gauge
-              battery={battery}
-              charging={charging}
-              connected={connected}
-              connection={connection}
-            />
+      <div className={`${styles.content} ${controllers.length === 0 ? styles.contentEmpty : ""} ${showGrid ? styles.contentGrid : ""}`}>
+        {showGrid ? (
+          <div className={styles.grid}>
+            {controllers.map((controller) => (
+              <ControllerCard
+                key={controller.id}
+                controller={controller}
+                onSelect={() => selectController(controller.id)}
+              />
+            ))}
           </div>
+        ) : (
+          selected && (
+            <div className={styles.gaugeSection}>
+              <Gauge
+                battery={selected.battery}
+                charging={selected.charging}
+                connected
+                connection={selected.connection}
+              />
+            </div>
+          )
         )}
 
         <div className={styles.infoSection}>
-          <StatusBadges
-            connected={connected}
-            connection={connection}
-            charging={charging}
-          />
-          {connected && <ColorPicker />}
+          <StatusBadges connected={controllers.length > 0} />
+          {selected && <ColorPicker controllerId={selected.id} />}
         </div>
       </div>
 
@@ -152,7 +178,7 @@ function App() {
       <DeviceInfoModal
         open={infoOpen}
         onClose={() => setInfoOpen(false)}
-        status={status}
+        controller={selected}
       />
 
       <AppreciationModal

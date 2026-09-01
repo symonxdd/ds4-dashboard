@@ -140,3 +140,17 @@
   font-weight: 800;
   color: var(--text-muted);
 }
+
+/* Card-sized variant, used when several controllers are shown side by side. */
+.compact {
+  width: 150px;
+  height: 110px;
+}
+
+.compact .batteryValue {
+  font-size: 2.75rem;
+}
+
+.compact .iconsRow {
+  gap: 0.5rem;
+}

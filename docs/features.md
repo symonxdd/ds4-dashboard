@@ -9,23 +9,37 @@ The main dashboard shows an arc-shaped gauge (`Gauge.jsx`, SVG-based) with the b
 
 When no controller is connected, the gauge is empty and a neutral status pill reads "No controller connected" underneath it.
 
+## Multiple controllers
+
+Any number of controllers can be connected at once, in any mix of USB and Bluetooth. With one connected the dashboard shows the single large gauge described above. From two upward it switches to a grid of cards (`ControllerCard.jsx`), one per controller, each with its own compact gauge, battery percentage, charging state and connection type.
+
+Cards are labelled by model ("DS4 v1", "DS4 v2"), numbered when several of the same model are connected. Controllers are identified by their Bluetooth MAC rather than by which port they happen to be on, so a pad keeps its card, its label and its lightbar color when it reconnects, or when it moves between USB and Bluetooth.
+
+One controller paired over Bluetooth and plugged into USB at the same time is two HID devices to Windows but one MAC, so it still shows as a single card, on whichever transport reached the app first. If that transport goes away, the other one takes over immediately.
+
+Clicking a card selects that controller. The selected one is marked "Controlling" and is the one the lightbar panel writes to, the one the tray icon shows, and the only one allowed to drive [input emulation](#input-emulation), so two controllers can never fight over the mouse. Selection is remembered across restarts and falls to another controller automatically if the selected one disconnects.
+
 ## Lightbar & rumble
 
-An expandable panel (`ColorPicker.jsx`), shown only while a controller is connected:
+An expandable panel (`ColorPicker.jsx`), shown while a controller is connected and applying to the selected one:
 
 - **Color**: R/G/B sliders (0-255 each), plus six one-tap presets (PS Blue, Soft Red, Green, Pink, Amber, Pure White).
 - **Brightness**: a separate 0-100% slider applied as a multiplier on top of the chosen RGB before it's sent to the controller, so brightness and color stay independently adjustable.
 - **Rumble**: separate weak-motor and strong-motor sliders (0-255 each), for previewing haptics outside of any game.
 
-Every slider drag sends an update immediately, throttled through a small queue (at most one in-flight `set_output_state` call at a time, a 10ms gap between sends) so rapid dragging can't flood the controller with overlapping HID writes. The last-sent color and rumble values are cached on the Rust side and automatically re-applied the moment a controller (re)connects, so unplugging and replugging, or switching a controller from USB to Bluetooth, doesn't reset the lightbar to its default color.
+Every slider drag sends an update immediately. Rapid dragging can't flood a controller with overlapping HID writes because the backend keeps only the most recent queued value for each pad and drops the rest, so no throttling delay is needed on the way in.
+
+Color and brightness are saved per controller, keyed by MAC, and re-applied whenever that controller connects: unplugging and replugging, switching a controller from USB to Bluetooth, or restarting the app doesn't reset its lightbar. Rumble is deliberately not saved, since it's a preview rather than a setting; selecting a different controller stops the previous one's motors rather than leaving it buzzing.
 
 ## Device info
 
-An info-icon modal (`DeviceInfoModal.jsx`) showing the connected controller's model (v1 vs v2, detected from its USB product ID), and its raw vendor/product ID in hex, read directly over HID.
+An info-icon modal (`DeviceInfoModal.jsx`) showing the selected controller's model (v1 vs v2, detected from its USB product ID), its Bluetooth MAC, and its raw vendor/product ID in hex, read directly over HID.
 
 ## Tray icon & tray behavior
 
-The system tray icon is a live battery gauge, redrawn roughly once a second directly in Rust (see [architecture.md](architecture.md#the-tray-battery-gauge-src-taurisrctray_iconrs)), not a static icon swapped between a few fixed states. Hovering it shows a tooltip with the exact percentage, connection type, and a charging indicator.
+The system tray icon is a live battery gauge, redrawn directly in Rust whenever the displayed values change (see [architecture.md](architecture.md#the-tray-battery-gauge-src-taurisrctray_iconrs)), not a static icon swapped between a few fixed states.
+
+A 32×32 icon can only show one battery legibly, so it follows the selected controller. Hovering it shows a tooltip listing every connected controller with its exact percentage, connection type and charging indicator, with the selected one marked, so nothing is hidden by the icon only being able to show one.
 
 Two independent settings control tray behavior:
 
@@ -42,6 +56,8 @@ Under Settings → General:
 ## Mouse & stick emulation (experimental)
 
 Under Settings → Emulation, two independent, optional ways to drive the OS mouse cursor from the controller, useful for basic navigation without switching to a mouse:
+
+Only the [selected controller](#multiple-controllers) drives the cursor, so having several connected never means two of them fighting over it.
 
 - **Touchpad Mouse**: dragging a finger on the DS4's touchpad moves the cursor by the same relative delta (large single-tick jumps, e.g. from a finger lifting and landing elsewhere, are filtered out so they don't teleport the cursor). A touchpad click is forwarded as a left mouse click.
 - **Joystick Mouse**: right-stick deflection past a small deadzone moves the cursor continuously, scaled down from the stick's raw range so it's controllable rather than twitchy.

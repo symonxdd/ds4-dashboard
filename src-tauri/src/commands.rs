@@ -1,8 +1,10 @@
 ﻿use std::fs;
+use std::sync::atomic::Ordering;
 use std::sync::Arc;
 use tauri::{webview::Color, AppHandle, Manager, State};
-use ds4_hid::Ds4Status;
-use crate::state::{AppState, LightbarState};
+use ds4_hid::{DeviceId, OutputState};
+use crate::controllers;
+use crate::state::{AppState, ControllerView};
 use crate::icon_utils::{ALT_ICONS, BASE_ICONS, decode_ico_to_image};
 
 const START_MINIMIZED_FILE: &str = "start_minimized.flag";
@@ -65,38 +67,46 @@ pub fn set_start_minimized(app_handle: AppHandle, enabled: bool) -> Result<(), S
     }
 }
 
-/// Tauri command: returns the latest DS4 status to the frontend.
+/// Tauri command: returns every connected controller.
 #[tauri::command]
-pub fn get_ds4_status(state: State<'_, Arc<AppState>>) -> Ds4Status {
-    state.status.lock().unwrap().clone()
+pub fn get_controllers(state: State<'_, Arc<AppState>>) -> Vec<ControllerView> {
+    controllers::views(&state)
 }
 
-/// Tauri command: updates the controller lightbar color and rumble.
+/// Tauri command: points the lightbar panel, tray icon and input emulation at
+/// one of the connected controllers.
+#[tauri::command]
+pub fn select_controller(app_handle: AppHandle, state: State<'_, Arc<AppState>>, id: DeviceId) {
+    {
+        let controllers = state.controllers.lock().unwrap();
+        if !controllers.contains_key(&id) {
+            return;
+        }
+        *state.selected.lock().unwrap() = Some(id);
+    }
+
+    controllers::publish(&app_handle, &state);
+}
+
+/// Tauri command: updates one controller's lightbar color and rumble.
+///
+/// The values are kept even while that controller is away, so they can be
+/// re-applied the moment it reconnects.
 #[tauri::command]
 pub fn set_output_state(
     state: State<'_, Arc<AppState>>,
+    id: DeviceId,
     r: u8,
     g: u8,
     b: u8,
     small_rumble: u8,
     large_rumble: u8,
-) -> Result<(), String> {
-    let device_lock = state.device.lock().unwrap();
-    let info_lock = state.device_info.lock().unwrap();
+) {
+    let output = OutputState { r, g, b, small_rumble, large_rumble };
+    state.saved_outputs.lock().unwrap().insert(id.clone(), output);
 
-    if let (Some(device), Some(info)) = (&*device_lock, &*info_lock) {
-        let is_bt = matches!(info.bus_type(), hidapi::BusType::Bluetooth);
-
-        // Save state for auto-reapply
-        let mut last_state = state.last_state.lock().unwrap();
-        *last_state = Some(LightbarState { r, g, b, small_rumble, large_rumble });
-
-        ds4_hid::set_output_state(device, r, g, b, small_rumble, large_rumble, is_bt)
-    } else {
-        // Even if no device, save it for when one connects
-        let mut last_state = state.last_state.lock().unwrap();
-        *last_state = Some(LightbarState { r, g, b, small_rumble, large_rumble });
-        Ok(())
+    if let Some(controller) = state.controllers.lock().unwrap().get(&id) {
+        let _ = controller.outputs.send(output);
     }
 }
 
@@ -132,15 +142,13 @@ pub fn toggle_close_to_tray(state: State<'_, Arc<AppState>>, enabled: bool) {
 /// Tauri command: toggles touchpad mouse emulation.
 #[tauri::command]
 pub fn toggle_mouse_emulation(state: State<'_, Arc<AppState>>, enabled: bool) {
-    let mut mouse_emulation = state.mouse_emulation.lock().unwrap();
-    *mouse_emulation = enabled;
+    state.mouse_emulation.store(enabled, Ordering::Relaxed);
 }
 
 /// Tauri command: toggles stick mouse emulation.
 #[tauri::command]
 pub fn toggle_stick_emulation(state: State<'_, Arc<AppState>>, enabled: bool) {
-    let mut stick_emulation = state.stick_emulation.lock().unwrap();
-    *stick_emulation = enabled;
+    state.stick_emulation.store(enabled, Ordering::Relaxed);
 }
 
 /// Tauri command: dynamically sets the application taskbar window icon.

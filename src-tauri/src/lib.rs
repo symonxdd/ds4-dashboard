@@ -1,8 +1,9 @@
 mod tray_icon;
 mod state;
 mod commands;
+mod controllers;
+mod emulation;
 mod icon_utils;
-mod polling;
 
 use std::sync::Arc;
 use tauri::Manager;
@@ -14,16 +15,7 @@ pub fn run() {
     let hr = icon_utils::set_explicit_app_user_model_id("com.symon.ds4-dashboard.temp-aumid");
     println!("[AUMID Setup] SetCurrentProcessExplicitAppUserModelID returned: 0x{:X}", hr);
 
-    let app_state = Arc::new(state::AppState {
-        status: std::sync::Mutex::new(ds4_hid::Ds4Status::disconnected()),
-        device: std::sync::Mutex::new(None),
-        device_info: std::sync::Mutex::new(None),
-        tray_visible: std::sync::Mutex::new(true),
-        close_to_tray: std::sync::Mutex::new(false),
-        last_state: std::sync::Mutex::new(None),
-        mouse_emulation: std::sync::Mutex::new(false),
-        stick_emulation: std::sync::Mutex::new(false),
-    });
+    let app_state = Arc::new(state::AppState::new());
 
     tauri::Builder::default()
         .plugin(tauri_plugin_single_instance::init(|app, _argv, _cwd| {
@@ -46,7 +38,8 @@ pub fn run() {
         ))
         .manage(app_state.clone())
         .invoke_handler(tauri::generate_handler![
-            commands::get_ds4_status,
+            commands::get_controllers,
+            commands::select_controller,
             commands::set_output_state,
             commands::toggle_tray_icon,
             commands::toggle_close_to_tray,
@@ -128,7 +121,7 @@ pub fn run() {
                 })
                 .build(app)?;
 
-            polling::spawn_polling_thread(app.handle().clone(), app_state.clone());
+            controllers::spawn(app.handle().clone(), app_state.clone());
 
             Ok(())
         })

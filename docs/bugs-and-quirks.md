@@ -47,7 +47,7 @@ One practical consequence: this only takes effect for *new* autostart registrati
 
 **Cause**: a DS4 boots into Bluetooth "basic mode" by default, sending small `0x01` reports with only stick/button data and no battery bytes at all. `0x01` is also exactly the report ID USB uses, so code that infers connection type from the report ID (rather than asking the OS) reads a basic-mode BT report and concludes "USB," and the battery byte it reads is just empty padding, hence `0%`.
 
-**Fix**: connection type is read from `hidapi`'s own `bus_type()` instead of guessed from the report ID. Separately, sending Bluetooth feature report `0x02` once per connection (`send_bt_handshake`, via `get_feature_report`) switches the controller into "full mode," where it sends `0x11` reports carrying real battery and IMU data. Both fixes were necessary: reading `bus_type()` alone would have correctly labeled the connection as Bluetooth but still shown `0%`, since basic-mode reports never carry battery data regardless of how they're labeled.
+**Fix**: connection type is read from `hidapi`'s own `bus_type()` instead of guessed from the report ID. Separately, sending Bluetooth feature report `0x02` once per connection (`request_full_mode`, via `get_feature_report`) switches the controller into "full mode," where it sends `0x11` reports carrying real battery and IMU data. Both fixes were necessary: reading `bus_type()` alone would have correctly labeled the connection as Bluetooth but still shown `0%`, since basic-mode reports never carry battery data regardless of how they're labeled.
 
 ## Taskbar icon didn't update in release builds (worked fine in dev)
 

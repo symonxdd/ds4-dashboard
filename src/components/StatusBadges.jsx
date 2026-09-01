@@ -1,18 +1,12 @@
-import { Bluetooth, Usb, Zap } from "lucide-react";
 import styles from "./StatusBadges.module.css";
 
-export default function StatusBadges({ connected, connection, charging }) {
-  const isBT = connection === "Bluetooth";
+export default function StatusBadges({ connected }) {
+  if (connected) return null;
 
   return (
     <div className={styles.badges}>
-      {connected ? null : (
-        <>
-          <span className={`${styles.badge} ${styles.disconnected}`}>No controller connected</span>
-          <span className={styles.hint}>Connect your controller through USB or Bluetooth</span>
-        </>
-      )}
+      <span className={`${styles.badge} ${styles.disconnected}`}>No controller connected</span>
+      <span className={styles.hint}>Connect your controller through USB or Bluetooth</span>
     </div>
   );
 }
-

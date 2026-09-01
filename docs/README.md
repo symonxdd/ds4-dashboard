@@ -3,13 +3,13 @@ title: DS4 Dashboard documentation
 description: Documentation for DS4 Dashboard, a Tauri + Rust + React battery monitor and lightbar/rumble controller for the DualShock 4 on Windows.
 ---
 
-DS4 Dashboard is a lightweight Windows utility for monitoring a DualShock 4 controller's battery level and customizing its lightbar and rumble, over both USB and Bluetooth. It talks to the controller directly over HID, with no dependency on DS4Windows or any other driver.
+DS4 Dashboard is a lightweight Windows utility for monitoring DualShock 4 controllers' battery levels and customizing their lightbar and rumble, over both USB and Bluetooth, several controllers at a time. It talks to the controller directly over HID, with no dependency on DS4Windows or any other driver.
 
 This site documents how the app is built. For downloads, screenshots, and the story behind the project, see the [main repo README](https://github.com/symonxdd/ds4-dashboard) or the [project website](https://ds4-dashboard.vercel.app).
 
 ## What it does
 
-- **Battery monitoring**: real-time percentage, charging state, and connection type (USB/Bluetooth), read directly from the controller's HID input report.
+- **Battery monitoring**: real-time percentage, charging state, and connection type (USB/Bluetooth), read directly from the controller's HID input report, for every connected controller at once.
 - **Lightbar & rumble control**: pick a lightbar color and preview small/large rumble motors at any time, independent of whatever game or app currently has the controller open.
 - **System tray integration**: a small tray icon renders a live battery gauge (an arc drawn pixel-by-pixel, not a static asset) so battery level is visible without opening the window at all.
 - **Launch at login**: optionally starts with Windows, optionally minimized straight to the tray.
@@ -30,7 +30,7 @@ This site documents how the app is built. For downloads, screenshots, and the st
 | Path | Contains |
 |---|---|
 | `src/` | React frontend: dashboard UI, settings modal, theme context |
-| `src-tauri/src/` | Tauri/Rust backend: window & tray setup, Tauri commands, the polling loop |
+| `src-tauri/src/` | Tauri/Rust backend: window & tray setup, Tauri commands, controller supervision |
 | `crates/ds4-hid/` | Standalone Rust crate with no Tauri dependency: raw HID report parsing for the DS4 (battery, sticks, touchpad, lightbar/rumble output) |
 | `.github/workflows/release.yml` | Builds and publishes a new GitHub Release whenever a `v*` tag is pushed |
 | `scripts/release.cjs` | Interactive helper that bumps the version, commits, tags, and pushes, triggering the release workflow above |
