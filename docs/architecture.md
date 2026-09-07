@@ -87,7 +87,31 @@ See [bugs-and-quirks.md](bugs-and-quirks.md#launch-minimized-did-nothing) for th
 
 ## Settings persistence
 
-Most settings (theme, tray visibility, close-to-tray, mouse/stick emulation, lightbar color, app icon) live in the frontend's `localStorage` and are pushed to Rust via a command on every change, since Rust only needs to know their current value while the app is already running. The one exception is "start minimized," which has to be known *before* the frontend exists at all, so it's persisted to disk instead (see above).
+Most settings (theme, tray visibility, close-to-tray, mouse/stick emulation, lightbar color, app icon) live in the frontend's `localStorage` and are pushed to Rust through a command on every change, since Rust only needs to know their current value while the app is already running.
+
+Three things are persisted by Rust instead, each for a reason the frontend can't satisfy:
+
+| File | Why Rust owns it |
+| --- | --- |
+| `start_minimized.flag` | Has to be known *before* the frontend exists at all (see above). |
+| `theme_preference.flag` | Same: the native window is painted with the theme's background color before the webview loads. |
+| `controller_names.json` | The label a name produces is also what the tray tooltip shows, and the tray is drawn in Rust. |
+
+### Where settings live
+
+Those three files live in the **local** app data directory, `%LOCALAPPDATA%\com.symon.ds4-dashboard`, reached through Tauri's `app_local_data_dir()`.
+
+Local rather than roaming: roaming app data is synced between machines by Windows, and every one of these settings is machine specific. A controller MAC, a window theme and a "launch minimized" preference all describe *this* PC.
+
+Versions up to 1.5.0 wrote them to the roaming directory. `migrate_settings_from_roaming` moves them across once, before anything reads a setting, and skips any file that already exists in the new location. It is marked temporary in the source: on a fresh install nothing ever creates the roaming directory, so it returns immediately at its `exists` check.
+
+## The title bar (`src-tauri/src/title_bar.rs`)
+
+The native title bar is painted to match `--bg-app`, so the window reads as one surface rather than the app sitting under a system colored bar. `DwmSetWindowAttribute` sets `DWMWA_CAPTION_COLOR` for the bar, `DWMWA_TEXT_COLOR` so the window title stays legible against it, and `DWMWA_BORDER_COLOR` so the window edge doesn't remain a contrasting line. Colors are `COLORREF`, which packs channels as `0x00BBGGRR`, the reverse of a CSS hex color.
+
+It is applied twice: in `setup()` before the window is ever shown, and inside `set_theme_preference`, which the frontend already calls on every theme change including a system theme change while running.
+
+`DWMWA_CAPTION_COLOR` needs Windows 11 build 22000 or later. On older builds the call fails and the code falls back to `DWMWA_USE_IMMERSIVE_DARK_MODE`, which gives a standard dark title bar rather than an exact match. Like `SetCurrentProcessExplicitAppUserModelID` in `icon_utils.rs`, this is a raw `extern "system"` declaration rather than a dependency on the `windows` crate.
 
 ## Theming
 

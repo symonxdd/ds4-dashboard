@@ -13,19 +13,33 @@ When no controller is connected, the gauge is empty and a neutral status pill re
 
 Any number of controllers can be connected at once, in any mix of USB and Bluetooth. With one connected the dashboard shows the single large gauge described above. From two upward it switches to a grid of cards (`ControllerCard.jsx`), one per controller, each with its own compact gauge, battery percentage, charging state and connection type.
 
-Cards are labelled by model ("DS4 v1", "DS4 v2"), numbered when several of the same model are connected. Controllers are identified by their Bluetooth MAC rather than by which port they happen to be on, so a pad keeps its card, its label and its lightbar color when it reconnects, or when it moves between USB and Bluetooth.
+Controllers are labelled by model ("DS4 v1", "DS4 v2"), numbered when several of the same model are connected. Controllers are identified by their Bluetooth MAC rather than by which port they happen to be on, so a pad keeps its card, its label and its lightbar color when it reconnects, or when it moves between USB and Bluetooth.
 
 One controller paired over Bluetooth and plugged into USB at the same time is two HID devices to Windows but one MAC, so it still shows as a single card, on whichever transport reached the app first. If that transport goes away, the other one takes over immediately.
 
-Clicking a card selects that controller. The selected one is marked "Controlling" and is the one the lightbar panel writes to, the one the tray icon shows, and the only one allowed to drive [input emulation](#input-emulation), so two controllers can never fight over the mouse. Selection is remembered across restarts and falls to another controller automatically if the selected one disconnects.
+### Naming a controller
+
+The name under the gauge is a pill with a pencil icon: click it to rename the controller, Enter or clicking away to save, Escape to cancel. Clearing the name restores the model default. The same control appears under the single large gauge, so a controller can be named whether one or several are connected.
+
+Names are keyed by MAC and stored by the Rust side rather than in the webview, in `controller_names.json` (see [where settings live](architecture.md#where-settings-live)). That is deliberate: the label a name produces is also what the [tray tooltip](#tray-icon--tray-behavior) lists, so storing it in the frontend would leave the tray disagreeing with the app.
+
+### Selecting a controller
+
+Clicking a card selects that controller. The selected one is marked "Selected" and is the one the lightbar panel writes to, the one the tray icon shows, and the only one allowed to drive [input emulation](#input-emulation), so two controllers can never fight over the mouse. Selection is remembered across restarts and falls to another controller automatically if the selected one disconnects.
 
 ## Lightbar & rumble
 
-An expandable panel (`ColorPicker.jsx`), shown while a controller is connected and applying to the selected one:
+Two collapsible tiles (`ColorPicker.jsx`, built on the shared `Collapsible.jsx`), shown while a controller is connected and applying to the selected one. Lightbar comes first as the one people reach for; rumble sits under it.
 
-- **Color**: R/G/B sliders (0-255 each), plus six one-tap presets (PS Blue, Soft Red, Green, Pink, Amber, Pure White).
+**Lightbar**:
+
+- **Presets**: six one-tap colors (PS Blue, Soft Red, Green, Pink, Amber, Pure White) in a full-width row at the top of the tile, separated by a rule from the sliders below, so they read as the shortcut rather than the main control.
+- **Color**: R/G/B sliders, 0-255 each.
 - **Brightness**: a separate 0-100% slider applied as a multiplier on top of the chosen RGB before it's sent to the controller, so brightness and color stay independently adjustable.
-- **Rumble**: separate weak-motor and strong-motor sliders (0-255 each), for previewing haptics outside of any game.
+
+**Rumble**: weak-motor and strong-motor sliders side by side (0-255 each), for previewing haptics outside of any game.
+
+They are two tiles but one component, because the controller takes color and rumble in a single output report and so they have to share state.
 
 Every slider drag sends an update immediately. Rapid dragging can't flood a controller with overlapping HID writes because the backend keeps only the most recent queued value for each pad and drops the rest, so no throttling delay is needed on the way in.
 

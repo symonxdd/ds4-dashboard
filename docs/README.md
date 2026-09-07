@@ -10,7 +10,8 @@ This site documents how the app is built. For downloads, screenshots, and the st
 ## What it does
 
 - **Battery monitoring**: real-time percentage, charging state, and connection type (USB/Bluetooth), read directly from the controller's HID input report, for every connected controller at once.
-- **Lightbar & rumble control**: pick a lightbar color and preview small/large rumble motors at any time, independent of whatever game or app currently has the controller open.
+- **Controller naming**: give each controller a name, remembered by its Bluetooth MAC so it survives reconnecting or switching between USB and Bluetooth.
+- **Lightbar & rumble control**: pick a lightbar color per controller and preview small/large rumble motors at any time, independent of whatever game or app currently has the controller open.
 - **System tray integration**: a small tray icon renders a live battery gauge (an arc drawn pixel-by-pixel, not a static asset) so battery level is visible without opening the window at all.
 - **Launch at login**: optionally starts with Windows, optionally minimized straight to the tray.
 - **Mouse/stick emulation**: optionally translates touchpad drags or right-stick deflection into OS-level mouse movement.
