@@ -5,26 +5,44 @@
   gap: 0.25rem;
   width: 190px;
   padding: 0.75rem 0.5rem 1rem;
-  background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
+  /* Same surface as the Lightbar and Rumble tiles, so every panel in the app
+     is made of the same material. */
+  background: var(--bg-glass);
+  border: 1px solid var(--border-glass);
+  backdrop-filter: blur(10px);
   border-radius: 14px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
   cursor: default;
-  transition: border-color var(--transition-speed) ease,
-    background var(--transition-speed) ease, opacity var(--transition-speed) ease;
+  transition: border-color var(--transition-speed) ease;
 }
 
-.card:not(.selected) {
-  opacity: 0.55;
+/* In dark mode the card is just its border: with no fill there is nothing for
+   the blur to work on either, so that comes off too rather than costing a
+   compositing layer for no visible effect. */
+:global(.dark) .card {
+  background: transparent;
+  backdrop-filter: none;
 }
 
+/* Hover and selection move the border rather than the fill, so the surface
+   stays identical to the tiles' in every state. */
 .card:hover:not(.selected) {
-  background: var(--bg-card-hover);
-  opacity: 0.8;
+  border-color: rgba(0, 0, 0, 0.18);
+}
+
+:global(.dark) .card:hover:not(.selected) {
+  border-color: rgba(255, 255, 255, 0.18);
 }
 
 .selected {
   border-color: var(--color-primary);
-  background: var(--bg-card-active);
+}
+
+/* backdrop-filter makes each card its own stacking context, so a tooltip inside
+   one is trapped there and paints under the next card along. Lifting the whole
+   hovered card lifts the tooltip with it. */
+.card:hover {
+  z-index: 1;
 }
 
 .badge {
@@ -34,10 +52,4 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--color-primary);
-}
-
-.label {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--text-primary);
 }

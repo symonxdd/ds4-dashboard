@@ -214,6 +214,7 @@ pub fn publish(app: &AppHandle, state: &AppState) {
 pub fn views(state: &AppState) -> Vec<ControllerView> {
     let controllers = state.controllers.lock().unwrap();
     let mut selected = state.selected.lock().unwrap();
+    let names = state.names.lock().unwrap();
 
     if !selected
         .as_ref()
@@ -238,13 +239,15 @@ pub fn views(state: &AppState) -> Vec<ControllerView> {
             let nth = numbered.entry(model).or_default();
             *nth += 1;
 
+            let default_label = if totals[model] > 1 {
+                format!("{model} #{nth}")
+            } else {
+                model.to_string()
+            };
+
             ControllerView {
                 id: id.clone(),
-                label: if totals[model] > 1 {
-                    format!("{model} #{nth}")
-                } else {
-                    model.to_string()
-                },
+                label: names.get(id.as_str()).cloned().unwrap_or(default_label),
                 connection: controller.connection,
                 battery: controller.report.battery,
                 charging: controller.report.charging,

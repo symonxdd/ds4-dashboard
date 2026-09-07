@@ -41,6 +41,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             commands::get_controllers,
             commands::select_controller,
+            commands::set_controller_name,
             commands::set_output_state,
             commands::toggle_tray_icon,
             commands::toggle_close_to_tray,
@@ -125,6 +126,7 @@ pub fn run() {
                 })
                 .build(app)?;
 
+            commands::load_controller_names(app.handle(), &app_state);
             controllers::spawn(app.handle().clone(), app_state.clone());
 
             Ok(())

@@ -1,4 +1,5 @@
-﻿use std::fs;
+﻿use std::collections::HashMap;
+use std::fs;
 use std::sync::atomic::Ordering;
 use std::sync::Arc;
 use tauri::{webview::Color, AppHandle, Manager, State};
@@ -11,10 +12,12 @@ use crate::icon_utils::{ALT_ICONS, BASE_ICONS, decode_ico_to_image};
 const SETTINGS_FILES: &[&str] = &[
     START_MINIMIZED_FILE,
     THEME_PREFERENCE_FILE,
+    CONTROLLER_NAMES_FILE,
 ];
 
 const START_MINIMIZED_FILE: &str = "start_minimized.flag";
 const THEME_PREFERENCE_FILE: &str = "theme_preference.flag";
+const CONTROLLER_NAMES_FILE: &str = "controller_names.json";
 
 // Must match --bg-app in src/theme.css for each theme.
 const LIGHT_BG: Color = Color(243, 243, 243, 255);
@@ -114,6 +117,59 @@ pub fn set_start_minimized(app_handle: AppHandle, enabled: bool) -> Result<(), S
     } else {
         Ok(())
     }
+}
+
+/// Reads the saved controller names into shared state. Names are persisted on
+/// the Rust side rather than in the webview because the label they produce is
+/// also what the tray icon's tooltip shows.
+pub fn load_controller_names(app_handle: &AppHandle, state: &AppState) {
+    let Ok(dir) = app_handle.path().app_local_data_dir() else {
+        return;
+    };
+    let Ok(text) = fs::read_to_string(dir.join(CONTROLLER_NAMES_FILE)) else {
+        return;
+    };
+
+    match serde_json::from_str::<HashMap<String, String>>(&text) {
+        Ok(names) => *state.names.lock().unwrap() = names,
+        Err(err) => eprintln!("[config] ignoring unreadable controller names: {err}"),
+    }
+}
+
+fn save_controller_names(
+    app_handle: &AppHandle,
+    names: &HashMap<String, String>,
+) -> Result<(), String> {
+    let dir = app_handle.path().app_local_data_dir().map_err(|e| e.to_string())?;
+    fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+
+    let text = serde_json::to_string_pretty(names).map_err(|e| e.to_string())?;
+    fs::write(dir.join(CONTROLLER_NAMES_FILE), text).map_err(|e| e.to_string())
+}
+
+/// Tauri command: renames a controller. An empty name drops the nickname, so the
+/// controller falls back to its model name.
+#[tauri::command]
+pub fn set_controller_name(
+    app_handle: AppHandle,
+    state: State<'_, Arc<AppState>>,
+    id: DeviceId,
+    name: String,
+) -> Result<(), String> {
+    let name = name.trim();
+
+    {
+        let mut names = state.names.lock().unwrap();
+        if name.is_empty() {
+            names.remove(id.as_str());
+        } else {
+            names.insert(id.as_str().to_owned(), name.to_owned());
+        }
+        save_controller_names(&app_handle, &names)?;
+    }
+
+    controllers::publish(&app_handle, &state);
+    Ok(())
 }
 
 /// Tauri command: returns every connected controller.

@@ -7,6 +7,7 @@ import { Settings as SettingsIcon, Info as InfoIcon, Sun, Moon, Heart } from "lu
 // Components
 import Gauge from "./components/Gauge";
 import ControllerCard from "./components/ControllerCard";
+import ControllerName from "./components/ControllerName";
 import StatusBadges from "./components/StatusBadges";
 import SettingsModal from "./components/SettingsModal";
 import DeviceInfoModal from "./components/DeviceInfoModal";
@@ -96,6 +97,10 @@ function App() {
     invoke("select_controller", { id }).catch(console.error);
   };
 
+  const renameController = (id, name) => {
+    invoke("set_controller_name", { id, name }).catch(console.error);
+  };
+
   const selected = controllers.find(({ selected }) => selected) ?? null;
   const showGrid = controllers.length > 1;
 
@@ -152,6 +157,7 @@ function App() {
                 key={controller.id}
                 controller={controller}
                 onSelect={() => selectController(controller.id)}
+                onRename={(name) => renameController(controller.id, name)}
               />
             ))}
           </div>
@@ -163,6 +169,10 @@ function App() {
                 charging={selected.charging}
                 connected
                 connection={selected.connection}
+              />
+              <ControllerName
+                label={selected.label}
+                onRename={(name) => renameController(selected.id, name)}
               />
             </div>
           )

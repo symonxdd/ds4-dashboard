@@ -1,0 +1,45 @@
+.name {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+  padding: 0.2rem 0.7rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: var(--bg-app);
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-align: center;
+  cursor: text;
+}
+
+/* Scoped to the button: the input shares this class, and must keep its border
+   transparent so the focus ring is the only thing marking it. */
+button.name:hover {
+  border-color: rgba(0, 0, 0, 0.25);
+}
+
+:global(.dark) button.name:hover {
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.input {
+  width: 9rem;
+  /* No border or outline of its own: the app's global focus ring (focus.css)
+     already marks the field while it is being edited. */
+  appearance: none;
+  box-shadow: none;
+}
+
+/* Always visible, so the name reads as editable without needing a hover. */
+.editIcon {
+  flex-shrink: 0;
+  opacity: 0.45;
+  transition: opacity var(--transition-speed) ease;
+}
+
+button.name:hover .editIcon {
+  opacity: 0.85;
+}

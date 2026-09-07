@@ -1,17 +1,26 @@
 import Gauge from "./Gauge";
+import ControllerName from "./ControllerName";
 import styles from "./ControllerCard.module.css";
 
-export default function ControllerCard({ controller, onSelect }) {
+export default function ControllerCard({ controller, onSelect, onRename }) {
   const { label, battery, charging, connection, selected } = controller;
 
   return (
-    <button
+    <div
       className={`${styles.card} ${selected ? styles.selected : ""}`}
-      onClick={onSelect}
+      role="button"
+      tabIndex={0}
       aria-pressed={selected}
-      aria-label={`Control ${label}`}
+      aria-label={`Select ${label}`}
+      onClick={onSelect}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onSelect();
+        }
+      }}
     >
-      <span className={styles.badge}>{selected ? "Controlling" : ""}</span>
+      <span className={styles.badge}>{selected ? "Selected" : ""}</span>
 
       <Gauge
         compact
@@ -21,7 +30,7 @@ export default function ControllerCard({ controller, onSelect }) {
         connection={connection}
       />
 
-      <span className={styles.label}>{label}</span>
-    </button>
+      <ControllerName label={label} onRename={onRename} />
+    </div>
   );
 }

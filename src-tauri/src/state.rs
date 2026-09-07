@@ -28,6 +28,10 @@ pub struct AppState {
     pub selected: Mutex<Option<DeviceId>>,
     /// Last output written per controller, re-applied when that pad reconnects.
     pub saved_outputs: Mutex<HashMap<DeviceId, OutputState>>,
+    /// User-chosen names, keyed by the controller id's text form because that
+    /// is how they are persisted. A controller without one falls back to its
+    /// model name.
+    pub names: Mutex<HashMap<String, String>>,
     pub tray_visible: Mutex<bool>,
     pub close_to_tray: Mutex<bool>,
     pub mouse_emulation: AtomicBool,
@@ -41,6 +45,7 @@ impl AppState {
             claimed_paths: Mutex::new(HashSet::new()),
             selected: Mutex::new(None),
             saved_outputs: Mutex::new(HashMap::new()),
+            names: Mutex::new(HashMap::new()),
             tray_visible: Mutex::new(true),
             close_to_tray: Mutex::new(false),
             mouse_emulation: AtomicBool::new(false),
