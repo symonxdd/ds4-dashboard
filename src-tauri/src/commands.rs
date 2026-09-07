@@ -5,6 +5,7 @@ use tauri::{webview::Color, AppHandle, Manager, State};
 use ds4_hid::{DeviceId, OutputState};
 use crate::controllers;
 use crate::state::{AppState, ControllerView};
+use crate::title_bar;
 use crate::icon_utils::{ALT_ICONS, BASE_ICONS, decode_ico_to_image};
 
 const SETTINGS_FILES: &[&str] = &[
@@ -57,25 +58,35 @@ pub fn migrate_settings_from_roaming(app_handle: &AppHandle) {
 /// -- avoiding a flash of the wrong theme's color that a purely CSS/JS-driven fix can't prevent,
 /// since Rust has no access to the webview's localStorage at window-creation time otherwise.
 pub fn theme_background_color(app_handle: &AppHandle) -> Color {
-    let is_light = app_handle
+    if theme_is_light(app_handle) { LIGHT_BG } else { DARK_BG }
+}
+
+/// Whether the persisted theme preference is the light one.
+pub fn theme_is_light(app_handle: &AppHandle) -> bool {
+    app_handle
         .path()
         .app_local_data_dir()
         .map(|dir| fs::read_to_string(dir.join(THEME_PREFERENCE_FILE)).ok())
         .ok()
         .flatten()
         .map(|s| s.trim() == "light")
-        .unwrap_or(false);
-
-    if is_light { LIGHT_BG } else { DARK_BG }
+        .unwrap_or(false)
 }
 
 /// Tauri command -- persists the resolved ("dark"/"light", never "system_default") theme
 /// preference so it's readable on next launch, before the webview exists.
 #[tauri::command]
 pub fn set_theme_preference(app_handle: AppHandle, theme: String) -> Result<(), String> {
+    let is_light = theme == "light";
+
     let dir = app_handle.path().app_local_data_dir().map_err(|e| e.to_string())?;
     fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
-    fs::write(dir.join(THEME_PREFERENCE_FILE), theme).map_err(|e| e.to_string())
+    fs::write(dir.join(THEME_PREFERENCE_FILE), theme).map_err(|e| e.to_string())?;
+
+    if let Some(window) = app_handle.get_webview_window("main") {
+        title_bar::apply(&window, is_light);
+    }
+    Ok(())
 }
 
 /// Reads the persisted "start minimized" preference from disk. This must be read from disk

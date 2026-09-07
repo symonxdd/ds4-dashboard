@@ -4,6 +4,7 @@ mod commands;
 mod controllers;
 mod emulation;
 mod icon_utils;
+mod title_bar;
 
 use std::sync::Arc;
 use tauri::Manager;
@@ -78,6 +79,7 @@ pub fn run() {
             // a light-theme user would see a flash of the hardcoded dark color on every launch.
             if let Some(window) = app.get_webview_window("main") {
                 let _ = window.set_background_color(Some(commands::theme_background_color(app.handle())));
+                title_bar::apply(&window, commands::theme_is_light(app.handle()));
 
                 if !start_minimized {
                     let _ = window.show();
