@@ -1,0 +1,71 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-glass);
+  border-radius: 1.25rem;
+  border: 1px solid var(--border-glass);
+  backdrop-filter: blur(10px);
+  width: 100%;
+  overflow: hidden;
+  /* Specifically transition only height/transform related properties to avoid theme-switch flicker */
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: none;
+  border: none;
+  width: 100%;
+  cursor: pointer;
+  color: var(--text-primary);
+  transition: background 0.2s;
+  z-index: 10;
+}
+
+.header:hover {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+:global(.dark) .header:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.header > svg {
+  opacity: 0.5;
+}
+
+.title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  opacity: 0.9;
+  color: var(--text-primary);
+}
+
+.contentWrapper {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.expanded .contentWrapper {
+  max-height: var(--content-max-height);
+}
+
+.innerContent {
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem 2rem 2rem 2rem;
+  gap: 1.5rem;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+.expanded .innerContent {
+  opacity: 1;
+  transform: translateY(0);
+}

@@ -1,93 +1,9 @@
-.container {
+.stack {
   display: flex;
   flex-direction: column;
-  background: var(--bg-glass);
-  border-radius: 1.25rem;
-  border: 1px solid var(--border-glass);
-  backdrop-filter: blur(10px);
-  width: 100%;
-  max-width: 850px; /* Increased from 550px */
-  overflow: hidden;
-  /* Specifically transition only height/transform related properties to avoid theme-switch flicker */
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-}
-
-.expandHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.25rem 1.5rem; /* More generous padding */
-  background: none;
-  border: none;
-  width: 100%;
-  cursor: pointer;
-  color: var(--text-primary);
-  transition: background 0.2s;
-  z-index: 10;
-}
-
-.expandHeader:hover {
-  background: rgba(0, 0, 0, 0.02);
-}
-
-:global(.dark) .expandHeader:hover {
-  background: rgba(255, 255, 255, 0.02);
-}
-
-.headerRight {
-  display: flex;
-  align-items: center;
   gap: 0.75rem;
-  opacity: 0.5;
-}
-
-.contentWrapper {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.expanded .contentWrapper {
-  max-height: 800px; /* Increased for larger content */
-}
-
-.innerContent {
-  display: flex;
-  flex-direction: column;
-  padding: 1.5rem 2rem 2.5rem 2rem; /* More generous padding */
-  gap: 2rem;
-  opacity: 0;
-  transform: translateY(-10px);
-  transition: opacity 0.3s, transform 0.3s;
-}
-
-.expanded .innerContent {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.sectionGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
   width: 100%;
-}
-
-.groupHeader {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 0.25rem;
-}
-
-.groupLabel {
-  font-size: 0.65rem;
-  font-weight: 800;
-  letter-spacing: 0.15em;
-  opacity: 0.5;
-  color: var(--text-primary);
-  white-space: nowrap;
+  max-width: 850px;
 }
 
 .topRow {
@@ -106,62 +22,48 @@
   gap: 1rem;
 }
 
-.brightnessPresetsSection {
+.brightnessSection {
   flex: 1;
   min-width: 250px;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
-.brightnessGroup, .presetsGroup {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
 }
 
-.sectionDivider {
+/* Presets sit above Color and Brightness as a shortcut into them, so they get
+   their own row rather than a column of their own. */
+.presetsRow {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
   width: 100%;
-  height: 1px;
-  background: var(--border-glass);
-  opacity: 0.6;
-  margin: 1rem 0;
 }
 
-.rumbleSection {
+.rowDivider {
   width: 100%;
-  display: flex;
-  flex-direction: column;
+  height: 1px;
+  /* Derived from the text color rather than a border token, so it stays
+     visible in the light, dark and true black themes alike. */
+  background: var(--text-primary);
+  opacity: 0.18;
 }
 
 .rumbleSliders {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: 1fr 1fr;
   gap: 2rem;
 }
 
-.footer {
-  margin-top: 1rem;
-  padding-top: 1rem;
-  display: flex;
-  justify-content: center;
-}
-
 .footerNote {
-  font-size: 0.7rem;
+  margin: 0.5rem 0 0 0;
+  align-self: center;
+  font-size: 0.8rem;
   font-weight: 500;
   opacity: 0.6;
   color: var(--text-secondary);
   text-align: center;
   max-width: 80%;
   line-height: 1.4;
-}
-
-.sectionTitle {
-  font-size: 0.85rem; /* Lowered from 0.95rem */
-  font-weight: 600;
-  opacity: 0.9;
-  color: var(--text-primary);
 }
 
 .subTitle {
@@ -252,6 +154,7 @@
 }
 
 .presets {
+  flex: 1;
   display: flex;
   flex-wrap: wrap;
   gap: 0.8rem; /* Increased gap */
@@ -264,9 +167,8 @@
   border: 3px solid transparent; /* Thicker border */
   background-color: var(--color);
   cursor: pointer;
-  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   padding: 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .colorDot:hover {
@@ -276,5 +178,4 @@
 .colorDot.active {
   border-color: var(--text-primary);
   transform: scale(1.2);
-  box-shadow: 0 0 15px var(--color);
 }

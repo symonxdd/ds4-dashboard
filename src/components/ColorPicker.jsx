@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import styles from "./ColorPicker.module.css";
 import { invoke } from "@tauri-apps/api/core";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import Collapsible from "./Collapsible";
+import styles from "./ColorPicker.module.css";
 import { NO_RUMBLE, loadSettings, saveSettings, toOutput } from "../lib/lightbar";
 
 const PRESETS = [
@@ -13,10 +13,11 @@ const PRESETS = [
   { name: "Pure White", hex: "#FFFFFF", r: 255, g: 255, b: 255 },
 ];
 
+// Lightbar and rumble are two tiles but one piece of state, because the
+// controller takes color and rumble in a single output report.
 export default function ColorPicker({ controllerId }) {
   const [settings, setSettings] = useState(() => loadSettings(controllerId));
   const [rumble, setRumble] = useState(NO_RUMBLE);
-  const [isExpanded, setIsExpanded] = useState(false);
 
   const { rgb, brightness } = settings;
 
@@ -58,130 +59,110 @@ export default function ColorPicker({ controllerId }) {
   };
 
   return (
-    <div className={`${styles.container} ${isExpanded ? styles.expanded : ""}`}>
-      <button
-        className={styles.expandHeader}
-        onClick={() => setIsExpanded(!isExpanded)}
-      >
-        <span className={styles.sectionTitle}>Lightbar & Rumble</span>
-        <div className={styles.headerRight}>
-          {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-        </div>
-      </button>
-
-      <div className={styles.contentWrapper}>
-        <div className={styles.innerContent}>
-          <div className={styles.sectionGroup}>
-            <div className={styles.groupHeader}>
-              <span className={styles.groupLabel}>LIGHTBAR</span>
-            </div>
-            <div className={styles.topRow}>
-              <section className={styles.colorSection}>
-                <h4 className={styles.subTitle}>Color</h4>
-                <div className={styles.sliders}>
-                  {["r", "g", "b"].map((channel) => (
-                    <div key={channel} className={styles.sliderGroup}>
-                      <div className={styles.sliderHeader}>
-                        <span className={styles.label}>{channel.toUpperCase()}</span>
-                        <span className={styles.value}>{rgb[channel]}</span>
-                      </div>
-                      <input
-                        type="range"
-                        min="0"
-                        max="255"
-                        value={rgb[channel]}
-                        onChange={(e) => handleRgbChange(channel, e.target.value)}
-                        className={styles.slider}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </section>
-
-              <section className={styles.brightnessPresetsSection}>
-                <div className={styles.brightnessGroup}>
-                  <h4 className={styles.subTitle}>Brightness</h4>
-                  <div className={styles.sliderGroup} style={{ marginTop: "0.25rem" }}>
-                    <div className={styles.sliderHeader}>
-                      <span className={styles.label}>Intensity</span>
-                      <span className={styles.value}>{brightness}%</span>
-                    </div>
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      value={brightness}
-                      onChange={(e) => handleBrightnessChange(e.target.value)}
-                      className={styles.slider}
-                    />
-                  </div>
-                </div>
-
-                <div className={styles.presetsGroup}>
-                  <h4 className={styles.subTitle}>Presets</h4>
-                  <div className={styles.presets}>
-                    {PRESETS.map((preset) => (
-                      <button
-                        key={preset.hex}
-                        className={`${styles.colorDot} ${rgb.r === preset.r && rgb.g === preset.g && rgb.b === preset.b
-                            ? styles.active : ""
-                          }`}
-                        style={{ "--color": preset.hex }}
-                        onClick={() => handlePresetSelect(preset)}
-                        title={preset.name}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </section>
-            </div>
+    <div className={styles.stack}>
+      <Collapsible title="Lightbar" maxHeight={520}>
+        <div className={styles.presetsRow}>
+          <h4 className={styles.subTitle}>Presets</h4>
+          <div className={styles.presets}>
+            {PRESETS.map((preset) => (
+              <button
+                key={preset.hex}
+                className={`${styles.colorDot} ${rgb.r === preset.r && rgb.g === preset.g && rgb.b === preset.b
+                    ? styles.active : ""
+                  }`}
+                style={{ "--color": preset.hex }}
+                onClick={() => handlePresetSelect(preset)}
+                title={preset.name}
+              />
+            ))}
           </div>
+        </div>
 
-          <div className={styles.sectionDivider} />
+        <div className={styles.rowDivider} />
 
-          <div className={styles.sectionGroup}>
-            <div className={styles.groupHeader}>
-              <span className={styles.groupLabel}>RUMBLE</span>
+        <div className={styles.topRow}>
+          <section className={styles.colorSection}>
+            <h4 className={styles.subTitle}>Color</h4>
+            <div className={styles.sliders}>
+              {["r", "g", "b"].map((channel) => (
+                <div key={channel} className={styles.sliderGroup}>
+                  <div className={styles.sliderHeader}>
+                    <span className={styles.label}>{channel.toUpperCase()}</span>
+                    <span className={styles.value}>{rgb[channel]}</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="255"
+                    value={rgb[channel]}
+                    onChange={(e) => handleRgbChange(channel, e.target.value)}
+                    className={styles.slider}
+                  />
+                </div>
+              ))}
             </div>
-            <section className={styles.rumbleSection}>
-              <div className={styles.rumbleSliders}>
-                <div className={styles.sliderGroup}>
-                  <div className={styles.sliderHeader}>
-                    <span className={styles.label}>Weak Motor</span>
-                    <span className={styles.value}>{rumble.weak}</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="0"
-                    max="255"
-                    value={rumble.weak}
-                    onChange={(e) => handleRumbleChange("weak", e.target.value)}
-                    className={styles.slider}
-                  />
-                </div>
-                <div className={styles.sliderGroup}>
-                  <div className={styles.sliderHeader}>
-                    <span className={styles.label}>Strong Motor</span>
-                    <span className={styles.value}>{rumble.strong}</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="0"
-                    max="255"
-                    value={rumble.strong}
-                    onChange={(e) => handleRumbleChange("strong", e.target.value)}
-                    className={styles.slider}
-                  />
-                </div>
+          </section>
+
+          <section className={styles.brightnessSection}>
+            <h4 className={styles.subTitle}>Brightness</h4>
+            <div className={styles.sliderGroup}>
+              <div className={styles.sliderHeader}>
+                <span className={styles.label}>Intensity</span>
+                <span className={styles.value}>{brightness}%</span>
               </div>
-            </section>
-          </div>
-
-          <footer className={styles.footer}>
-            <p className={styles.footerNote}>Settings are saved per controller and are auto-applied when it connects.</p>
-          </footer>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={brightness}
+                onChange={(e) => handleBrightnessChange(e.target.value)}
+                className={styles.slider}
+              />
+            </div>
+          </section>
         </div>
-      </div>
+
+        <p className={styles.footerNote}>
+          Color and brightness are saved per controller and re-applied when it connects.
+        </p>
+      </Collapsible>
+
+      <Collapsible title="Rumble" maxHeight={200}>
+        <div className={styles.rumbleSliders}>
+          <div className={styles.sliderGroup}>
+            <div className={styles.sliderHeader}>
+              <span className={styles.label}>Weak Motor</span>
+              <span className={styles.value}>{rumble.weak}</span>
+            </div>
+            <input
+              type="range"
+              min="0"
+              max="255"
+              value={rumble.weak}
+              onChange={(e) => handleRumbleChange("weak", e.target.value)}
+              className={styles.slider}
+            />
+          </div>
+          <div className={styles.sliderGroup}>
+            <div className={styles.sliderHeader}>
+              <span className={styles.label}>Strong Motor</span>
+              <span className={styles.value}>{rumble.strong}</span>
+            </div>
+            <input
+              type="range"
+              min="0"
+              max="255"
+              value={rumble.strong}
+              onChange={(e) => handleRumbleChange("strong", e.target.value)}
+              className={styles.slider}
+            />
+          </div>
+        </div>
+
+        <p className={styles.footerNote}>
+          Rumble is only for testing and isn't saved.
+        </p>
+      </Collapsible>
     </div>
   );
 }

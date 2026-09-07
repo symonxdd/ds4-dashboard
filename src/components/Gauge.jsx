@@ -50,21 +50,21 @@ export default function Gauge({ battery, charging, connected, connection, compac
       <div className={styles.center}>
         {connected ? (
           <>
-            <div className={`${styles.iconContainer} ${styles.topIconContainer}`} data-tooltip="The controller's battery level">
+            <div className={`${styles.iconContainer} ${styles.topIconContainer}`} data-tooltip="The controller's battery level (%)">
               <Battery size={compact ? 16 : 20} className={styles.topIcon} style={{ color }} />
             </div>
             <span className={styles.batteryValue} style={{ color }}>
               {battery}
             </span>
             <div className={styles.iconsRow}>
-              <div className={styles.iconContainer} data-tooltip={isBT ? "Connected via Bluetooth" : "Connected via USB"}>
-                {isBT ? <Bluetooth size={compact ? 13 : 16} className={styles.connIcon} /> : <Usb size={compact ? 13 : 16} className={styles.connIcon} />}
+              <div className={styles.iconContainer} data-tooltip={isBT ? "Connected through Bluetooth" : "Connected through USB"}>
+                {isBT ? <Bluetooth size={compact ? 15 : 19} className={styles.connIcon} /> : <Usb size={compact ? 15 : 19} className={styles.connIcon} />}
               </div>
               
               {charging && (
                 <div className={styles.iconContainer} data-tooltip="Controller is charging">
                   <div className={styles.ripple} />
-                  <Zap size={compact ? 15 : 18} className={styles.chargingIcon} />
+                  <Zap size={compact ? 17 : 21} className={styles.chargingIcon} />
                 </div>
               )}
             </div>

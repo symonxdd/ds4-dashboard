@@ -1,0 +1,31 @@
+/* --- Shared hover tooltip --- */
+/* Any element carrying data-tooltip gets the app's standard tooltip. */
+
+[data-tooltip] {
+  position: relative;
+}
+
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 150%;
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  padding: 0.65rem 1rem;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 400;
+  white-space: nowrap;
+  border: 1px solid var(--border-subtle);
+  pointer-events: none;
+  opacity: 0;
+  z-index: 100;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-tooltip]:hover::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}

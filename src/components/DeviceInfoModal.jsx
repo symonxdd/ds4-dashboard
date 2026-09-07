@@ -16,7 +16,7 @@ function hex(value) {
 export default function DeviceInfoModal({ open, onClose, controller }) {
   const fields = [
     ["Model", controller ? `DualShock 4 ${controller.is_v2 ? "v2" : "v1"}` : ""],
-    ["Address", controller ? address(controller) : ""],
+    ["Bluetooth MAC", controller ? address(controller) : ""],
     ["Vendor ID", controller ? hex(controller.vendor_id) : ""],
     ["Product ID", controller ? hex(controller.product_id) : ""],
   ];

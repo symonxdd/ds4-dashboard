@@ -60,32 +60,8 @@
 }
 
 .topIconContainer {
+  margin-top: 0.4rem;
   margin-bottom: 0.3rem;
-}
-
-.iconContainer::after {
-  content: attr(data-tooltip);
-  position: absolute;
-  bottom: 150%;
-  left: 50%;
-  transform: translateX(-50%) translateY(10px);
-  background: var(--bg-surface);
-  color: var(--text-primary);
-  padding: 0.65rem 1rem;
-  border-radius: 10px;
-  font-size: 0.85rem;
-  font-weight: 400;
-  white-space: nowrap;
-  border: 1px solid var(--border-subtle);
-  pointer-events: none;
-  opacity: 0;
-  z-index: 100;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.iconContainer:hover::after {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
 }
 
 .chargingIcon {
@@ -153,4 +129,10 @@
 
 .compact .iconsRow {
   gap: 0.5rem;
+}
+
+/* The compact gauge is shorter, so the icon needs proportionally more room
+   above it to not crowd the top of the arc. */
+.compact .topIconContainer {
+  margin-top: 0.8rem;
 }
