@@ -7,12 +7,50 @@ use crate::controllers;
 use crate::state::{AppState, ControllerView};
 use crate::icon_utils::{ALT_ICONS, BASE_ICONS, decode_ico_to_image};
 
+const SETTINGS_FILES: &[&str] = &[
+    START_MINIMIZED_FILE,
+    THEME_PREFERENCE_FILE,
+];
+
 const START_MINIMIZED_FILE: &str = "start_minimized.flag";
 const THEME_PREFERENCE_FILE: &str = "theme_preference.flag";
 
 // Must match --bg-app in src/theme.css for each theme.
 const LIGHT_BG: Color = Color(243, 243, 243, 255);
 const DARK_BG: Color = Color(6, 6, 6, 255);
+
+/// Moves settings written by 1.5.0 and earlier out of the roaming app data
+/// directory, which is synced between machines and is the wrong home for
+/// preferences that describe this PC in particular.
+///
+/// Runs before anything reads a setting, and leaves the old directory alone if
+/// a file already exists in the new one. On a fresh install nothing ever writes
+/// to the roaming directory, so this returns at the `exists` check.
+///
+/// TEMPORARY: delete this, its call in `lib.rs`, and `SETTINGS_FILES` once
+/// 1.6.0 has been out long enough that nobody is still updating from 1.5.0.
+/// Without it, updating users silently lose their "Launch Minimized" setting.
+pub fn migrate_settings_from_roaming(app_handle: &AppHandle) {
+    let path = app_handle.path();
+    let (Ok(old_dir), Ok(new_dir)) = (path.app_config_dir(), path.app_local_data_dir()) else {
+        return;
+    };
+
+    if old_dir == new_dir || !old_dir.exists() {
+        return;
+    }
+
+    for name in SETTINGS_FILES {
+        let (old_path, new_path) = (old_dir.join(name), new_dir.join(name));
+        if !old_path.exists() || new_path.exists() {
+            continue;
+        }
+
+        if fs::create_dir_all(&new_dir).is_ok() && fs::rename(&old_path, &new_path).is_ok() {
+            println!("[config] moved {name} out of the roaming directory");
+        }
+    }
+}
 
 /// Reads the persisted theme preference from disk and returns the matching window background
 /// color, so the native window can be painted with the correct color *before* it's ever shown
@@ -21,7 +59,7 @@ const DARK_BG: Color = Color(6, 6, 6, 255);
 pub fn theme_background_color(app_handle: &AppHandle) -> Color {
     let is_light = app_handle
         .path()
-        .app_config_dir()
+        .app_local_data_dir()
         .map(|dir| fs::read_to_string(dir.join(THEME_PREFERENCE_FILE)).ok())
         .ok()
         .flatten()
@@ -35,7 +73,7 @@ pub fn theme_background_color(app_handle: &AppHandle) -> Color {
 /// preference so it's readable on next launch, before the webview exists.
 #[tauri::command]
 pub fn set_theme_preference(app_handle: AppHandle, theme: String) -> Result<(), String> {
-    let dir = app_handle.path().app_config_dir().map_err(|e| e.to_string())?;
+    let dir = app_handle.path().app_local_data_dir().map_err(|e| e.to_string())?;
     fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
     fs::write(dir.join(THEME_PREFERENCE_FILE), theme).map_err(|e| e.to_string())
 }
@@ -46,7 +84,7 @@ pub fn set_theme_preference(app_handle: AppHandle, theme: String) -> Result<(), 
 pub fn start_minimized_preference(app_handle: &AppHandle) -> bool {
     app_handle
         .path()
-        .app_config_dir()
+        .app_local_data_dir()
         .map(|dir| dir.join(START_MINIMIZED_FILE).exists())
         .unwrap_or(false)
 }
@@ -54,7 +92,7 @@ pub fn start_minimized_preference(app_handle: &AppHandle) -> bool {
 /// Tauri command -- persists the "start minimized" preference so it's readable on next launch.
 #[tauri::command]
 pub fn set_start_minimized(app_handle: AppHandle, enabled: bool) -> Result<(), String> {
-    let dir = app_handle.path().app_config_dir().map_err(|e| e.to_string())?;
+    let dir = app_handle.path().app_local_data_dir().map_err(|e| e.to_string())?;
     let path = dir.join(START_MINIMIZED_FILE);
 
     if enabled {

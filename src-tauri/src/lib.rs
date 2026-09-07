@@ -67,6 +67,8 @@ pub fn run() {
             // always present when autostart is on, see above). The actual decision of whether
             // to start hidden comes from the persisted "Launch Minimized" preference, since
             // that can change independently of the (fixed-at-registration) autostart args.
+            commands::migrate_settings_from_roaming(app.handle());
+
             let launched_via_autostart = std::env::args().any(|arg| arg == "--minimized");
             let start_minimized = launched_via_autostart && commands::start_minimized_preference(app.handle());
 
